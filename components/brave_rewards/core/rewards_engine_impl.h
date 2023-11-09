@@ -56,6 +56,7 @@ inline constexpr uint64_t kPublisherListRefreshInterval =
 
 class InitializationManager;
 class LinkageChecker;
+class SolanaWalletProvider;
 
 namespace wallet_provider {
 class WalletProvider;
@@ -404,7 +405,8 @@ class RewardsEngineImpl : public mojom::RewardsEngine {
   mojo::AssociatedRemote<mojom::RewardsEngineClient> client_;
 
   std::tuple<std::unique_ptr<InitializationManager>,
-             std::unique_ptr<LinkageChecker>>
+             std::unique_ptr<LinkageChecker>,
+             std::unique_ptr<SolanaWalletProvider>>
       helpers_;
 
   promotion::Promotion promotion_;

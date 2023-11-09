@@ -90,6 +90,32 @@ std::string Security::Sign(
   return sign(header_keys, header_values, key_id, new_secret_key);
 }
 
+std::optional<std::vector<uint8_t>> Security::SignMessageWithSeed(
+    const std::vector<uint8_t>& message,
+    const std::vector<uint8_t>& seed) {
+  if (!IsSeedValid(seed)) {
+    return std::nullopt;
+  }
+
+  std::vector<uint8_t> public_key;
+  std::vector<uint8_t> secret_key;
+  if (!GetPublicKeyFromSeed(GetHKDF(seed), &public_key, &secret_key)) {
+    return std::nullopt;
+  }
+
+  DCHECK_EQ(secret_key.size(), static_cast<size_t>(crypto_sign_SECRETKEYBYTES));
+
+  size_t max_length = message.size() + crypto_sign_BYTES;
+  std::vector<uint8_t> signed_message(max_length);
+  unsigned long long signed_size = 0;  // NOLINT
+
+  crypto_sign(signed_message.data(), &signed_size, message.data(),
+              message.size(), secret_key.data());
+
+  signed_message.resize(signed_size);
+  return signed_message;
+}
+
 std::vector<uint8_t> Security::GenerateSeed() {
   std::vector<uint8_t> v_seed(kSeedLength);
   crypto::RandBytes(v_seed.data(), kSeedLength);

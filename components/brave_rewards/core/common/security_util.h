@@ -7,6 +7,7 @@
 #define BRAVE_COMPONENTS_BRAVE_REWARDS_CORE_COMMON_SECURITY_UTIL_H_
 
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -23,6 +24,11 @@ class Security {
       const std::vector<std::map<std::string, std::string>>& headers,
       const std::string& key_id,
       const std::vector<uint8_t>& private_key);
+
+  // Signs a message with the user's recovery seed.
+  static std::optional<std::vector<uint8_t>> SignMessageWithSeed(
+      const std::vector<uint8_t>& message,
+      const std::vector<uint8_t>& seed);
 
   static std::vector<uint8_t> GenerateSeed();
 
