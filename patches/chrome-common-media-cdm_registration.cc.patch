@@ -1,0 +1,22 @@
+diff --git a/chrome/common/media/cdm_registration.cc b/chrome/common/media/cdm_registration.cc
+index a4526a9d24d10eab8765895a5f5aa8f711a2aa73..8c587e48c7cb24a8ee863c7b2c723ecaf8a647dc 100644
+--- a/chrome/common/media/cdm_registration.cc
++++ b/chrome/common/media/cdm_registration.cc
+@@ -100,7 +100,7 @@ std::unique_ptr<content::CdmInfo> CreateCdmInfoFromWidevineDirectory(
+         // BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)) && (BUILDFLAG(IS_LINUX) ||
+         // BUILDFLAG(IS_CHROMEOS))
+ 
+-#if BUILDFLAG(BUNDLE_WIDEVINE_CDM) && \
++#if BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT) && /* third-party patch from snap-from-source 56c42943 */ \
+     (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+ // On Linux/ChromeOS we have to preload the CDM since it uses the zygote
+ // sandbox. On Windows and Mac, the bundled CDM is handled by the component
+@@ -181,7 +181,7 @@ void AddSoftwareSecureWidevine(std::vector<content::CdmInfo>* cdms) {
+   // case both versions will be the same and point to the same directory, so
+   // it doesn't matter which one is loaded.
+   content::CdmInfo* bundled_widevine = nullptr;
+-#if BUILDFLAG(BUNDLE_WIDEVINE_CDM)
++#if BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT) /* third-party patch from snap-from-source 56c42943 */
+   bundled_widevine = GetBundledWidevine();
+ #endif
+ 

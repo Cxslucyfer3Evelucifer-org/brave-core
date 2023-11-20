@@ -1,0 +1,13 @@
+diff --git a/third_party/widevine/cdm/widevine.gni b/third_party/widevine/cdm/widevine.gni
+index 28baebbacfd4e90d836f0bb7bd1af074aa81f5c4..5240b4d2bd0d781bf2b133b008d7917115756911 100644
+--- a/third_party/widevine/cdm/widevine.gni
++++ b/third_party/widevine/cdm/widevine.gni
+@@ -26,7 +26,7 @@ if (is_chromeos && !is_chromeos_device) {
+ library_widevine_cdm_available =
+     (is_chromeos &&
+      (target_cpu == "x64" || target_cpu == "arm" || target_cpu == "arm64")) ||
+-    (target_os == "linux" && target_cpu == "x64") ||
++    (target_os == "linux") ||  # third-party patch from snap-from-source 56c42943
+     (target_os == "mac" && (target_cpu == "x64" || target_cpu == "arm64")) ||
+     (target_os == "win" &&
+      (target_cpu == "x86" || target_cpu == "x64" || target_cpu == "arm64"))
