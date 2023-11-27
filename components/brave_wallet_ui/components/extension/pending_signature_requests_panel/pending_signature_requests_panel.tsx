@@ -11,9 +11,7 @@ import {
   useGetIsTxSimulationOptInStatusQuery,
   useGetSolanaTransactionSimulationQuery
 } from '../../../common/slices/api.slice'
-import {
-  useSignSolanaTransactionsQueue
-} from '../../../common/hooks/use_sign_solana_tx_queue'
+import { useSignSolanaTransactionsQueue } from '../../../common/hooks/use_sign_solana_tx_queue'
 
 // Components
 import {
@@ -40,8 +38,7 @@ export const PendingSignatureRequestsPanel: React.FC<Props> = ({
     queueNextSignTransaction,
     queueNumber,
     selectedQueueData,
-    signingAccount,
-    txDatas,
+    signingAccount
   } = useSignSolanaTransactionsQueue(signMode)
 
   // queries
@@ -99,23 +96,23 @@ export const PendingSignatureRequestsPanel: React.FC<Props> = ({
         queueNumber={queueNumber}
         selectedQueueData={selectedQueueData}
         signingAccount={signingAccount}
-        txDatas={txDatas}
       />
     )
   }
 
   // Default (not simulated)
-  return <SignTransactionPanel
-    signMode={signMode}
-    isSigningDisabled={isDisabled}
-    network={network}
-    queueLength={queueLength}
-    queueNextSignTransaction={queueNextSignTransaction}
-    queueNumber={queueNumber}
-    selectedQueueData={selectedQueueData}
-    signingAccount={signingAccount}
-    txDatas={txDatas}
-  />
+  return (
+    <SignTransactionPanel
+      signMode={signMode}
+      isSigningDisabled={isDisabled}
+      network={network}
+      queueLength={queueLength}
+      queueNextSignTransaction={queueNextSignTransaction}
+      queueNumber={queueNumber}
+      selectedQueueData={selectedQueueData}
+      signingAccount={signingAccount}
+    />
+  )
 }
 
 export default PendingSignatureRequestsPanel

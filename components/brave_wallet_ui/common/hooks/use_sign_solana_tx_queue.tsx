@@ -13,7 +13,6 @@ import { BraveWallet } from '../../constants/types'
 
 // utils
 import { PanelSelectors } from '../../panel/selectors'
-import { getTxDatasFromQueuedSolSignRequest } from '../../utils/tx-utils'
 
 // hooks
 import { useUnsafePanelSelector } from './use-safe-selector'
@@ -130,13 +129,6 @@ export const useSignSolanaTransactionsQueue = (
   const { data: network } = useGetNetworkQuery(selectedQueueData ?? skipToken)
   const { account } = useAccountQuery(selectedQueueData?.fromAccountId)
 
-  // memos
-  const txDatas = React.useMemo(() => {
-    return selectedQueueData
-      ? getTxDatasFromQueuedSolSignRequest(selectedQueueData)
-      : []
-  }, [selectedQueueData])
-
   // methods
   const queueNextSignTransaction = React.useCallback(() => {
     setQueueNumber((prev) => (prev === queueLength ? 1 : prev + 1))
@@ -148,7 +140,6 @@ export const useSignSolanaTransactionsQueue = (
     selectedQueueData,
     isDisabled,
     network,
-    txDatas,
     signingAccount: account,
     queueNextSignTransaction,
     queueLength,

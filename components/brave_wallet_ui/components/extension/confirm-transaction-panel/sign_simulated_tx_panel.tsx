@@ -7,18 +7,13 @@ import * as React from 'react'
 
 // Utils
 import { reduceAddress } from '../../../utils/reduce-address'
-import {
-  BraveWallet,
-  SerializableSolanaTxData,
-  SignDataSteps
-} from '../../../constants/types'
+import { BraveWallet, SignDataSteps } from '../../../constants/types'
 import {
   translateSimulationResultError //
 } from '../../../utils/tx-simulation-utils'
-import {
-  getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction
-} from '../../../utils/solana-instruction-utils'
+import { getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction } from '../../../utils/solana-instruction-utils'
 import { getLocale } from '../../../../common/locale'
+import { getTxDatasFromQueuedSolSignRequest } from '../../../utils/tx-utils'
 
 // Hooks
 import {
@@ -57,7 +52,7 @@ import {
   ButtonRow,
   StyledWrapper,
   TopRow,
-  WarningTitleRow,
+  WarningTitleRow
 } from '../sign-panel/style'
 import {
   AccountNameAndAddress,
@@ -76,10 +71,10 @@ type Props = {
   isSigningDisabled: boolean
   network: BraveWallet.NetworkInfo
   queueNextSignTransaction: () => void
-  selectedQueueData: BraveWallet.SignTransactionRequest
+  selectedQueueData:
+    | BraveWallet.SignTransactionRequest
     | BraveWallet.SignAllTransactionsRequest
     | undefined
-  txDatas: SerializableSolanaTxData[] | BraveWallet.SolanaTxData[]
   signingAccount?: BraveWallet.AccountInfo
   queueLength: number
   queueNumber: number
@@ -105,17 +100,14 @@ export const SignSimulatedTransactionPanel = ({
   selectedQueueData,
   signingAccount,
   signMode,
-  txDatas,
-  txSimulation,
+  txSimulation
 }: Props) => {
   // custom hooks
-  const {
-    cancelSign: onCancelSign,
-    sign: onSign
-  } = useProcessSignSolanaTransaction({
-    signMode,
-    request: selectedQueueData
-  })
+  const { cancelSign: onCancelSign, sign: onSign } =
+    useProcessSignSolanaTransaction({
+      signMode,
+      request: selectedQueueData
+    })
 
   // state
   const originInfo = selectedQueueData?.originInfo
@@ -147,12 +139,15 @@ export const SignSimulatedTransactionPanel = ({
     []
   )
 
+  // memos
+  const txDatas = React.useMemo(() => {
+    return selectedQueueData
+      ? getTxDatasFromQueuedSolSignRequest(selectedQueueData)
+      : []
+  }, [selectedQueueData])
+
   // render
-  if (
-    !txSimulation ||
-    !network ||
-    !selectedQueueData
-  ) {
+  if (!txSimulation || !network || !selectedQueueData) {
     return <LoadingSimulation />
   }
 
@@ -169,7 +164,10 @@ export const SignSimulatedTransactionPanel = ({
   return (
     <StyledWrapper>
       <TopRow>
-        <Column alignItems='flex-start' gap={'4px'}>
+        <Column
+          alignItems='flex-start'
+          gap={'4px'}
+        >
           <NetworkNameText>{network?.chainName ?? ''}</NetworkNameText>
           <AccountNameAndAddress>
             <CopyTooltip
@@ -288,7 +286,10 @@ export const SignSimulatedTransactionPanel = ({
               txSimulation={txSimulation}
             />
 
-            <SignTransactionFooter onConfirm={onSign} onReject={onCancelSign} />
+            <SignTransactionFooter
+              onConfirm={onSign}
+              onReject={onCancelSign}
+            />
           </>
         )}
       </>

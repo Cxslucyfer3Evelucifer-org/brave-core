@@ -234,7 +234,10 @@ export const ConfirmSimulatedTransactionPanel = ({
             transactionsQueueLength > 1 ? 'space-between' : 'flex-start'
           }
         >
-          <Column alignItems='flex-start' gap={'4px'}>
+          <Column
+            alignItems='flex-start'
+            gap={'4px'}
+          >
             <NetworkNameText>
               {transactionsNetwork?.chainName ?? ''}
             </NetworkNameText>

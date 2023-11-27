@@ -19,9 +19,7 @@ import {
 } from '../../../stories/mock-data/mock-networks'
 
 // utils
-import {
-  SignInWithEthereumError
-} from './sign_in_with_ethereum_error'
+import { SignInWithEthereumError } from './sign_in_with_ethereum_error'
 import {
   deserializeTransaction //
 } from '../../../utils/model-serialization-utils'
@@ -31,6 +29,8 @@ import {
   WalletPanelStory //
 } from '../../../stories/wrappers/wallet-panel-story-wrapper'
 import { SignTransactionPanel } from './sign-transaction-panel'
+import { SignInWithEthereum } from './sign_in_with_ethereum'
+import { mockSignMessageRequest } from '../../../stories/mock-data/mock-eth-requests'
 
 export const _SignAllSolanaTxPanel = () => {
   return (
@@ -61,9 +61,6 @@ export const _SignAllSolanaTxPanel = () => {
           throw new Error('Function not implemented.')
         }}
         selectedQueueData={mockSolDappSignAllTransactionsRequest}
-        txDatas={mockSolDappSignAllTransactionsRequest.txDatas.map(
-          (u) => u.solanaTxData!
-        )}
         queueLength={1}
         queueNumber={0}
       />
@@ -97,7 +94,6 @@ export const _SignSolanaTxPanel = () => {
           throw new Error('Function not implemented.')
         }}
         selectedQueueData={mockSolDappSignTransactionRequest}
-        txDatas={[mockSolDappSignTransactionRequest.txData.solanaTxData!]}
         queueLength={1}
         queueNumber={0}
       />
@@ -119,6 +115,22 @@ export const _SignInWithEthereumError = () => {
 
 _SignInWithEthereumError.story = {
   name: 'Sign in with Ethereum Error Panel'
+}
+
+export const _SignInWithEthereum = () => {
+  return (
+    <WalletPanelStory>
+      <SignInWithEthereum
+        data={mockSignMessageRequest}
+        onCancel={() => {}}
+        onSignIn={() => {}}
+      />
+    </WalletPanelStory>
+  )
+}
+
+_SignInWithEthereum.story = {
+  name: 'Sign in with Ethereum Panel'
 }
 
 export default {

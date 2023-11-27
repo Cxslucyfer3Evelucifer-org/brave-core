@@ -6,15 +6,12 @@
 import * as React from 'react'
 
 // Types
-import {
-  BraveWallet,
-  SerializableSolanaTxData,
-  SignDataSteps
-} from '../../../constants/types'
+import { BraveWallet, SignDataSteps } from '../../../constants/types'
 
 // Utils
 import { getLocale } from '../../../../common/locale'
 import { getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction } from '../../../utils/solana-instruction-utils'
+import { getTxDatasFromQueuedSolSignRequest } from '../../../utils/tx-utils'
 
 // Hooks
 import { useAccountOrb } from '../../../common/hooks/use-orb'
@@ -69,7 +66,6 @@ interface Props {
     | BraveWallet.SignTransactionRequest
     | BraveWallet.SignAllTransactionsRequest
     | undefined
-  txDatas: SerializableSolanaTxData[] | BraveWallet.SolanaTxData[]
   signingAccount?: BraveWallet.AccountInfo
   queueLength: number
   queueNumber: number
@@ -91,8 +87,7 @@ export const SignTransactionPanel = ({
   queueNextSignTransaction,
   queueNumber,
   selectedQueueData,
-  signingAccount,
-  txDatas
+  signingAccount
 }: Props) => {
   // custom hooks
   const orb = useAccountOrb(signingAccount)
@@ -113,6 +108,12 @@ export const SignTransactionPanel = ({
       account: signingAccount,
       request: selectedQueueData
     })
+
+  const txDatas = React.useMemo(() => {
+    return selectedQueueData
+      ? getTxDatasFromQueuedSolSignRequest(selectedQueueData)
+      : []
+  }, [selectedQueueData])
 
   // render
   return (
