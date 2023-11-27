@@ -51,6 +51,7 @@ export const TransactionDetailBox = ({
   const btcData = txDataUnion.btcTxData
   const zecData = txDataUnion.zecTxData
   const dataArray = txDataUnion.ethTxData1559?.baseData.data || []
+  const sendOptions = solData?.sendOptions
 
   // render
   // No Data
@@ -125,6 +126,39 @@ export const TransactionDetailBox = ({
   // SOL, EVM & FIL
   return (
     <>
+      {sendOptions && (
+        <>
+          {!!Number(sendOptions?.maxRetries?.maxRetries) && (
+            <DetailColumn key={'maxRetries'}>
+              <TransactionText>
+                {getLocale('braveWalletSolanaMaxRetries')}:
+              </TransactionText>
+              <DetailText>{sendOptions?.maxRetries?.maxRetries}</DetailText>
+            </DetailColumn>
+          )}
+
+          {sendOptions?.preflightCommitment && (
+            <DetailColumn key={'preflightCommitment'}>
+              <TransactionText>
+                {getLocale('braveWalletSolanaPreflightCommitment')}:
+              </TransactionText>
+              <DetailText>{sendOptions?.preflightCommitment}</DetailText>
+            </DetailColumn>
+          )}
+
+          {sendOptions?.skipPreflight && (
+            <DetailColumn key={'skipPreflight'}>
+              <TransactionText>
+                {getLocale('braveWalletSolanaSkipPreflight')}:
+              </TransactionText>
+              <DetailText>
+                {sendOptions.skipPreflight.skipPreflight.toString()}
+              </DetailText>
+            </DetailColumn>
+          )}
+        </>
+      )}
+      
       {solData || dataArray ? (
         <DetailColumn>
           <TransactionText>
