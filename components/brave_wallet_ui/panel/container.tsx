@@ -183,12 +183,21 @@ function Container() {
     )
   }
 
-  if (selectedPanel === 'transactionStatus' && selectedTransactionId) {
+  if (selectedPanel === 'connectWithSite') {
+    const accountsToConnect = accounts.filter((account) =>
+      connectingAccounts.includes(account.address.toLowerCase())
+    )
     return (
-      <PanelWrapper isLonger={false}>
-        <StyledExtensionWrapper>
-          <TransactionStatus transactionId={selectedTransactionId} />
-        </StyledExtensionWrapper>
+      <PanelWrapper
+        width={390}
+        height={600}
+      >
+        <ConnectWithSiteWrapper>
+          <ConnectWithSite
+            originInfo={connectToSiteOrigin}
+            accountsToConnect={accountsToConnect}
+          />
+        </ConnectWithSiteWrapper>
       </PanelWrapper>
     )
   }
@@ -205,67 +214,6 @@ function Container() {
             account={selectedAccount}
             hardwareWalletCode={hardwareWalletCode}
           />
-        </StyledExtensionWrapper>
-      </PanelWrapper>
-    )
-  }
-
-  if (selectedPendingTransaction) {
-    return (
-      <PanelWrapper isLonger={true}>
-        <LongWrapper padding='0px'>
-          <PendingTransactionPanel
-            selectedPendingTransaction={selectedPendingTransaction}
-          />
-        </LongWrapper>
-      </PanelWrapper>
-    )
-  }
-
-  if (
-    (signAllTransactionsRequests.length > 0 ||
-      signTransactionRequests.length > 0) &&
-    (selectedPanel === 'signTransaction' ||
-      selectedPanel === 'signAllTransactions')
-  ) {
-    return (
-      <PanelWrapper
-        width={390}
-        height={650}
-      >
-        <LongWrapper>
-          <PendingSignatureRequestsPanel
-            signMode={
-              signAllTransactionsRequests.length ||
-              selectedPanel === 'signAllTransactions'
-                ? 'signAllTxs'
-                : 'signTx'
-            }
-          />
-        </LongWrapper>
-      </PanelWrapper>
-    )
-  }
-
-  if (selectedPanel === 'signData') {
-    return (
-      <PanelWrapper isLonger={true}>
-        <LongWrapper>
-          <SignPanel
-            signMessageData={signMessageData}
-            // Pass `true`` here if the signing method is risky
-            showWarning={false}
-          />
-        </LongWrapper>
-      </PanelWrapper>
-    )
-  }
-
-  if (addTokenRequests.length) {
-    return (
-      <PanelWrapper isLonger={false}>
-        <StyledExtensionWrapper>
-          <AddSuggestedTokenPanel />
         </StyledExtensionWrapper>
       </PanelWrapper>
     )
@@ -330,21 +278,73 @@ function Container() {
     )
   }
 
-  if (selectedPanel === 'connectWithSite') {
-    const accountsToConnect = accounts.filter((account) =>
-      connectingAccounts.includes(account.address.toLowerCase())
+  if (selectedPanel === 'signData') {
+    return (
+      <PanelWrapper isLonger={true}>
+        <LongWrapper>
+          <SignPanel
+            signMessageData={signMessageData}
+            // Pass a boolean here if the signing method is risky
+            showWarning={false}
+          />
+        </LongWrapper>
+      </PanelWrapper>
     )
+  }
+
+  if (addTokenRequests.length) {
+    return (
+      <PanelWrapper isLonger={false}>
+        <StyledExtensionWrapper>
+          <AddSuggestedTokenPanel />
+        </StyledExtensionWrapper>
+      </PanelWrapper>
+    )
+  }
+
+  if (selectedPanel === 'transactionStatus' && selectedTransactionId) {
+    return (
+      <PanelWrapper isLonger={false}>
+        <StyledExtensionWrapper>
+          <TransactionStatus transactionId={selectedTransactionId} />
+        </StyledExtensionWrapper>
+      </PanelWrapper>
+    )
+  }
+
+  if (selectedPendingTransaction) {
+    return (
+      <PanelWrapper isLonger={true}>
+        <LongWrapper padding='0px'>
+          <PendingTransactionPanel
+            selectedPendingTransaction={selectedPendingTransaction}
+          />
+        </LongWrapper>
+      </PanelWrapper>
+    )
+  }
+
+  if (
+    (signAllTransactionsRequests.length > 0 ||
+      signTransactionRequests.length > 0) &&
+    (selectedPanel === 'signTransaction' ||
+      selectedPanel === 'signAllTransactions')
+  ) {
     return (
       <PanelWrapper
         width={390}
-        height={600}
+        height={650}
       >
-        <ConnectWithSiteWrapper>
-          <ConnectWithSite
-            originInfo={connectToSiteOrigin}
-            accountsToConnect={accountsToConnect}
+        <LongWrapper>
+          <PendingSignatureRequestsPanel
+            signMode={
+              signAllTransactionsRequests.length ||
+              selectedPanel === 'signAllTransactions'
+                ? 'signAllTxs'
+                : 'signTx'
+            }
           />
-        </ConnectWithSiteWrapper>
+        </LongWrapper>
       </PanelWrapper>
     )
   }
