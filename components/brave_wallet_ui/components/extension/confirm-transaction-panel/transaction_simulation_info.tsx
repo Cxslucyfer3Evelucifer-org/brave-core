@@ -185,6 +185,7 @@ export const TransactionSimulationInfo = ({
         </TransactionChangeCollapse>
       ) : null}
 
+      {/* Approvals */}
       {hasApprovals && (
         <TransactionChangeCollapse
           onToggle={onToggleApprovalsSection}
@@ -208,6 +209,7 @@ export const TransactionSimulationInfo = ({
         </TransactionChangeCollapse>
       )}
 
+      {/* Staking */}
       {hasSolStakingAuthChanges && (
         <TransactionChangeCollapse
           onToggle={onToggleSolStakingAuthSection}
@@ -233,6 +235,26 @@ export const TransactionSimulationInfo = ({
                 </React.Fragment>
               ) : null
             )}
+          </TransactionChangeCollapseContent>
+        </TransactionChangeCollapse>
+      )}
+
+      {/* No Changes */}
+      {!hasTransfers && !hasApprovals && !hasSolStakingAuthChanges && (
+        <TransactionChangeCollapse
+          onToggle={onToggleSolStakingAuthSection}
+          hasMultipleCategories={hasMultipleCategories}
+          isOpen={isSolStakingAuthSectionOpen}
+          key='SOL-staking-changes'
+        >
+          <TransactionChangeCollapseTitle slot='title'>
+            {/* TODO: */}
+            {'No Changes'}
+          </TransactionChangeCollapseTitle>
+          <TransactionChangeCollapseContent>
+            <CollapseHeaderDivider key={'NoChanges-Divider'} />
+            {/* TODO */}
+            NO Changes detected
           </TransactionChangeCollapseContent>
         </TransactionChangeCollapse>
       )}
