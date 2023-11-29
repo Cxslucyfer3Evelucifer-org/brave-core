@@ -49,8 +49,7 @@ import {
   WarningTitle
 } from '../shared-panel-styles'
 import {
-  ButtonRow,
-  StyledWrapper,
+  SignPanelButtonRow,
   TopRow,
   WarningTitleRow
 } from '../sign-panel/style'
@@ -58,7 +57,8 @@ import {
   AccountNameAndAddress,
   NetworkNameText,
   OriginRow,
-  SimulationInfoColumn
+  SimulationInfoColumn,
+  StyledWrapper
 } from './confirm_simulated_tx_panel.styles'
 import { MessageBox } from './style'
 import { DetailColumn } from '../transaction-box/style'
@@ -202,94 +202,104 @@ export const SignSimulatedTransactionPanel = ({
                 {getLocale('braveWalletAllowAddNetworkLearnMoreButton')}
               </LearnMoreButton>
             </WarningBox>
-            <ButtonRow>
+            <SignPanelButtonRow>
               <NavButton
                 buttonType='secondary'
+                minWidth='45%'
                 text={getLocale('braveWalletButtonCancel')}
                 onSubmit={onCancelSign}
               />
               <NavButton
                 buttonType={'danger'}
+                minWidth='45%'
                 text={getLocale('braveWalletButtonContinue')}
                 onSubmit={() => {
                   setSignStep(SignDataSteps.SignData)
                 }}
               />
-            </ButtonRow>
+            </SignPanelButtonRow>
           </>
         ) : (
           <>
-            {originInfo && (
-              <OriginRow>
-                <TransactionOrigin originInfo={originInfo} />
-              </OriginRow>
-            )}
-
-            <TabRow>
-              <PanelTab
-                isSelected={selectedTab === 'transaction'}
-                onSubmit={onSelectTab('transaction')}
-                text='Transaction'
-              />
-              <PanelTab
-                isSelected={selectedTab === 'details'}
-                onSubmit={onSelectTab('details')}
-                text='Details'
-              />
-            </TabRow>
-
-            <SimulationInfoColumn>
-              {isWarningCollapsed && (
-                <>
-                  {selectedTab === 'transaction' ? (
-                    simulationResultsErrorText ? (
-                      <MessageBox isDetails={true}>
-                        <ErrorText>{simulationResultsErrorText}</ErrorText>
-                      </MessageBox>
-                    ) : txSimulation && network ? (
-                      <TransactionSimulationInfo
-                        key={'SolanaSimulationInfo'}
-                        simulation={txSimulation}
-                        simulationType={'SVM'}
-                        network={network}
-                      />
-                    ) : null
-                  ) : (
-                    <MessageBox isDetails={true}>
-                      {txDatas.map(({ instructions, txType }, i) => {
-                        return (
-                          <DetailColumn key={`${txType}-${i}`}>
-                            {instructions?.map((instruction, index) => {
-                              return (
-                                <SolanaTransactionInstruction
-                                  key={index}
-                                  typedInstructionWithParams={
-                                    //
-                                    getTypedSolTxInstruction(instruction)
-                                  }
-                                />
-                              )
-                            })}
-                          </DetailColumn>
-                        )
-                      })}
-                    </MessageBox>
-                  )}
-                </>
+            <Column
+              fullWidth
+              flex={1}
+              justifyContent={'flex-start'}
+            >
+              {originInfo && (
+                <OriginRow>
+                  <TransactionOrigin originInfo={originInfo} />
+                </OriginRow>
               )}
-            </SimulationInfoColumn>
 
-            <SimulationWarnings
-              hasCriticalWarnings={hasCriticalWarnings}
-              isWarningCollapsed={isWarningCollapsed}
-              setIsWarningCollapsed={setIsWarningCollapsed}
-              txSimulation={txSimulation}
-            />
+              <TabRow>
+                <PanelTab
+                  isSelected={selectedTab === 'transaction'}
+                  onSubmit={onSelectTab('transaction')}
+                  text='Transaction'
+                />
+                <PanelTab
+                  isSelected={selectedTab === 'details'}
+                  onSubmit={onSelectTab('details')}
+                  text='Details'
+                />
+              </TabRow>
 
-            <SignTransactionFooter
-              onConfirm={onSign}
-              onReject={onCancelSign}
-            />
+              <SimulationInfoColumn>
+                {isWarningCollapsed && (
+                  <>
+                    {selectedTab === 'transaction' ? (
+                      simulationResultsErrorText ? (
+                        <MessageBox isDetails={true}>
+                          <ErrorText>{simulationResultsErrorText}</ErrorText>
+                        </MessageBox>
+                      ) : txSimulation && network ? (
+                        <TransactionSimulationInfo
+                          key={'SolanaSimulationInfo'}
+                          simulation={txSimulation}
+                          simulationType={'SVM'}
+                          network={network}
+                        />
+                      ) : null
+                    ) : (
+                      <MessageBox isDetails={true}>
+                        {txDatas.map(({ instructions, txType }, i) => {
+                          return (
+                            <DetailColumn key={`${txType}-${i}`}>
+                              {instructions?.map((instruction, index) => {
+                                return (
+                                  <SolanaTransactionInstruction
+                                    key={index}
+                                    typedInstructionWithParams={
+                                      //
+                                      getTypedSolTxInstruction(instruction)
+                                    }
+                                  />
+                                )
+                              })}
+                            </DetailColumn>
+                          )
+                        })}
+                      </MessageBox>
+                    )}
+                  </>
+                )}
+              </SimulationInfoColumn>
+            </Column>
+
+            <Column fullWidth>
+              <SimulationWarnings
+                hasCriticalWarnings={hasCriticalWarnings}
+                isWarningCollapsed={isWarningCollapsed}
+                setIsWarningCollapsed={setIsWarningCollapsed}
+                txSimulation={txSimulation}
+              />
+
+              <SignTransactionFooter
+                onConfirm={onSign}
+                onReject={onCancelSign}
+              />
+            </Column>
           </>
         )}
       </>

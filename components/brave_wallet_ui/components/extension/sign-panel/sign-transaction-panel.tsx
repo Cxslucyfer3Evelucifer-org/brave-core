@@ -34,7 +34,7 @@ import {
   NetworkText,
   PanelTitle,
   MessageBox,
-  ButtonRow,
+  SignPanelButtonRow,
   WarningTitleRow
 } from './style'
 
@@ -197,7 +197,7 @@ export const SignTransactionPanel = ({
           </MessageBox>
         </>
       )}
-      <ButtonRow>
+      <SignPanelButtonRow>
         <NavButton
           buttonType='secondary'
           text={getLocale('braveWalletButtonCancel')}
@@ -216,7 +216,7 @@ export const SignTransactionPanel = ({
           }
           disabled={isSigningDisabled}
         />
-      </ButtonRow>
+      </SignPanelButtonRow>
     </StyledWrapper>
   )
 }

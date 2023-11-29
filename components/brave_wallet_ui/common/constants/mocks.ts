@@ -1366,6 +1366,16 @@ export const mockReceiveSolSimulation: BraveWallet.SolanaSimulationResponse = {
   ]
 }
 
+export const mockNoChangeSolSimulation: BraveWallet.SolanaSimulationResponse = {
+  action: BraveWallet.BlowfishSuggestedAction.kBlock,
+  simulationResults: {
+    error: undefined,
+    isRecentBlockhashExpired: false,
+    expectedStateChanges: []
+  },
+  warnings: []
+}
+
 export const mockSolStakingChangeEvent: BraveWallet.BlowfishSolanaStateChange =
   {
     humanReadableDiff: 'Re-stake 0.05657 SOL',

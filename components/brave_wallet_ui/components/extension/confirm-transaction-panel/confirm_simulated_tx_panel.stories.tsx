@@ -34,7 +34,7 @@ import {
   mockSimulatedERC721Approve,
   mockSimulatedSwapETHForDAI,
   mockSolStakingChangeSimulation,
-  mockSolanaAccount,
+  mockSolanaAccount
 } from '../../../common/constants/mocks'
 import {
   mockSolanaTransactionInfo,
@@ -43,6 +43,8 @@ import {
 import {
   mockErc20TokensList //
 } from '../../../stories/mock-data/mock-asset-options'
+import { PanelWrapper } from '../../../panel/style'
+import { LongWrapper } from '../../../stories/style'
 
 const _mockEvmAccountInfos: BraveWallet.AccountInfo[] = [
   {
@@ -202,15 +204,19 @@ export const _ConfirmSimulatedEvmTransactionPanel = () => {
         evmSimulationResponse: evmSimulationResponse,
         selectedAccountId: findAccountByAccountId(
           mockEvmTxInfos[0].fromAccountId,
-          mockAccountsRegistry,
+          mockAccountsRegistry
         )?.accountId,
         transactionInfos: mockEvmTxInfos
       }}
     >
-      <ConfirmSimulatedTransactionPanel
-        simulationType='EVM'
-        txSimulation={evmSimulationResponse}
-      />
+      <PanelWrapper isLonger>
+        <LongWrapper padding='0px'>
+          <ConfirmSimulatedTransactionPanel
+            simulationType='EVM'
+            txSimulation={evmSimulationResponse}
+          />
+        </LongWrapper>
+      </PanelWrapper>
     </WalletPanelStory>
   )
 }
@@ -228,7 +234,7 @@ export const _ConfirmSimulatedSvmTransactionPanel = () => {
         fullTokenList: mockErc20TokensList // make SOL list
       }}
       panelStateOverride={{
-        hasInitialized: true,
+        hasInitialized: true
       }}
       uiStateOverride={{
         selectedPendingTransactionId: mockSvmTxInfos[0].id
@@ -238,9 +244,9 @@ export const _ConfirmSimulatedSvmTransactionPanel = () => {
         svmSimulationResponse: svmSimulationResponse,
         selectedAccountId: findAccountByAccountId(
           mockSvmTxInfos[0].fromAccountId,
-          mockAccountsRegistry,
+          mockAccountsRegistry
         )?.accountId,
-        transactionInfos: mockSvmTxInfos,
+        transactionInfos: mockSvmTxInfos
       }}
     >
       <ConfirmSimulatedTransactionPanel
