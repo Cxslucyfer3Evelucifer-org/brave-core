@@ -11,7 +11,9 @@ import {
   useGetIsTxSimulationOptInStatusQuery,
   useGetSolanaTransactionSimulationQuery
 } from '../../../common/slices/api.slice'
-import { useSignSolanaTransactionsQueue } from '../../../common/hooks/use_sign_solana_tx_queue'
+import {
+  useSignSolanaTransactionsQueue //
+} from '../../../common/hooks/use_sign_solana_tx_queue'
 
 // Components
 import {

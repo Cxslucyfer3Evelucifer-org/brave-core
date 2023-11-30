@@ -11,7 +11,9 @@ import { BraveWallet, SignDataSteps } from '../../../constants/types'
 import {
   translateSimulationResultError //
 } from '../../../utils/tx-simulation-utils'
-import { getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction } from '../../../utils/solana-instruction-utils'
+import {
+  getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction //
+} from '../../../utils/solana-instruction-utils'
 import { getLocale } from '../../../../common/locale'
 import { getTxDatasFromQueuedSolSignRequest } from '../../../utils/tx-utils'
 

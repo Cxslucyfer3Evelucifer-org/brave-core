@@ -17,6 +17,9 @@ import {
 import {
   mockSolanaMainnetNetwork //
 } from '../../../stories/mock-data/mock-networks'
+import {
+  mockSignMessageRequest //
+} from '../../../stories/mock-data/mock-eth-requests'
 
 // utils
 import { SignInWithEthereumError } from './sign_in_with_ethereum_error'
@@ -30,7 +33,6 @@ import {
 } from '../../../stories/wrappers/wallet-panel-story-wrapper'
 import { SignTransactionPanel } from './sign-transaction-panel'
 import { SignInWithEthereum } from './sign_in_with_ethereum'
-import { mockSignMessageRequest } from '../../../stories/mock-data/mock-eth-requests'
 
 export const _SignAllSolanaTxPanel = () => {
   return (

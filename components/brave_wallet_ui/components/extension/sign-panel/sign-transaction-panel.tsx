@@ -10,7 +10,9 @@ import { BraveWallet, SignDataSteps } from '../../../constants/types'
 
 // Utils
 import { getLocale } from '../../../../common/locale'
-import { getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction } from '../../../utils/solana-instruction-utils'
+import {
+  getSolanaTransactionInstructionParamsAndType as getTypedSolTxInstruction //
+} from '../../../utils/solana-instruction-utils'
 import { getTxDatasFromQueuedSolSignRequest } from '../../../utils/tx-utils'
 
 // Hooks
