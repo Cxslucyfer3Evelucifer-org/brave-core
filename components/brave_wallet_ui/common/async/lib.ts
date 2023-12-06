@@ -15,7 +15,11 @@ import {
 import * as WalletActions from '../actions/wallet_actions'
 
 // Utils
-import { getAssetIdKey, isNativeAsset } from '../../utils/asset-utils'
+import {
+  getAssetIdKey,
+  getHiddenOrDeletedTokenIdsList,
+  isNativeAsset
+} from '../../utils/asset-utils'
 import {
   makeNativeAssetLogo,
   makeNetworkAsset
@@ -162,19 +166,11 @@ export function refreshVisibleTokenInfo(
           async (item: BraveWallet.NetworkInfo) => await inner(item)
         )
 
-    const removedAssetIds = [
-      ...getState().wallet.removedFungibleTokenIds,
-      ...getState().wallet.removedNonFungibleTokenIds,
-      ...getState().wallet.deletedNonFungibleTokenIds
-    ]
+    const removedAssetIds = getHiddenOrDeletedTokenIdsList()
     const userVisibleTokensInfo = visibleAssets
       .flat(1)
       .filter((token) => !removedAssetIds.includes(getAssetIdKey(token)))
-    const removedNfts = visibleAssets
-      .flat(1)
-      .filter((token) => removedAssetIds.includes(getAssetIdKey(token)))
     await dispatch(WalletActions.setVisibleTokensInfo(userVisibleTokensInfo))
-    await dispatch(WalletActions.setRemovedNonFungibleTokens(removedNfts))
   }
 }
 

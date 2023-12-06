@@ -43,7 +43,9 @@ import getAPIProxy from './bridge'
 import {
   addChainIdToToken,
   getAssetIdKey,
-  GetBlockchainTokenIdArg
+  GetBlockchainTokenIdArg,
+  getDeletedTokenIds,
+  getHiddenTokenIds
 } from '../../utils/asset-utils'
 import { addLogoToToken } from './lib'
 import { makeNetworkAsset } from '../../options/asset-options'
@@ -77,6 +79,7 @@ export class BaseQueryCache {
   private _walletInfo?: BraveWallet.WalletInfo
   private _allAccountsInfo?: BraveWallet.AllAccountsInfo
   private _accountsRegistry?: AccountInfoEntityState
+  private _knownTokensRegistry?: BlockchainTokenEntityAdaptorState
   private _userTokensRegistry?: BlockchainTokenEntityAdaptorState
   private _nftImageIpfsGateWayUrlRegistry: Record<string, string | null> = {}
   private _extractedIPFSUrlRegistry: Record<string, string | undefined> = {}
@@ -256,68 +259,36 @@ export class BaseQueryCache {
     this._networksRegistry = undefined
   }
 
+  getKnownTokensRegistry = async () => {
+    if (!this._knownTokensRegistry) {
+      const { blockchainRegistry } = apiProxyFetcher()
+      const networksRegistry = await this.getNetworksRegistry()
+
+      this._knownTokensRegistry = await makeTokenRegistry({
+        type: 'known',
+        networksRegistry,
+        blockchainRegistry
+      })
+    }
+    return this._knownTokensRegistry
+  }
+
   getUserTokensRegistry = async () => {
     if (!this._userTokensRegistry) {
       const { braveWalletService } = apiProxyFetcher()
       const networksRegistry = await this.getNetworksRegistry()
 
-      const tokenIdsByChainId: Record<string, string[]> = {}
-      const tokenIdsByCoinType: Record<BraveWallet.CoinType, string[]> = {}
-      const visibleTokenIds: string[] = []
-      const visibleTokenIdsByChainId: Record<string, string[]> = {}
-      const visibleTokenIdsByCoinType: Record<BraveWallet.CoinType, string[]> =
-        {}
-
-      const userTokenListsForNetworks = await mapLimit(
-        Object.entries(networksRegistry.entities),
-        10,
-        async ([networkId, network]: [string, BraveWallet.NetworkInfo]) => {
-          if (!network) {
-            return []
-          }
-
-          const fullTokensListForNetwork: BraveWallet.BlockchainToken[] =
-            await fetchUserAssetsForNetwork(braveWalletService, network)
-
-          tokenIdsByChainId[networkId] =
-            fullTokensListForNetwork.map(getAssetIdKey)
-
-          tokenIdsByCoinType[network.coin] = (
-            tokenIdsByCoinType[network.coin] || []
-          ).concat(tokenIdsByChainId[networkId] || [])
-
-          const visibleTokensForNetwork: BraveWallet.BlockchainToken[] =
-            fullTokensListForNetwork.filter((t) => t.visible)
-
-          visibleTokenIdsByChainId[networkId] =
-            visibleTokensForNetwork.map(getAssetIdKey)
-
-          visibleTokenIdsByCoinType[network.coin] = (
-            visibleTokenIdsByCoinType[network.coin] || []
-          ).concat(visibleTokenIdsByChainId[networkId] || [])
-
-          visibleTokenIds.push(...visibleTokenIdsByChainId[networkId])
-
-          return fullTokensListForNetwork
-        }
-      )
-
-      const userTokensByChainIdRegistry = blockchainTokenEntityAdaptor.setAll(
-        {
-          ...blockchainTokenEntityAdaptorInitialState,
-          idsByChainId: tokenIdsByChainId,
-          tokenIdsByChainId,
-          visibleTokenIds,
-          visibleTokenIdsByChainId,
-          visibleTokenIdsByCoinType,
-          idsByCoinType: tokenIdsByCoinType
-        },
-        userTokenListsForNetworks.flat(1)
-      )
-
-      this._userTokensRegistry = userTokensByChainIdRegistry
+      this._userTokensRegistry = await makeTokenRegistry({
+        type: 'user',
+        networksRegistry,
+        braveWalletService
+      })
     }
     return this._userTokensRegistry
+  }
+
+  clearKnownTokensRegistry = () => {
+    this._knownTokensRegistry = undefined
   }
 
   clearUserTokensRegistry = () => {
@@ -416,15 +387,29 @@ export const resetCache = () => {
 }
 
 // internals
-async function fetchUserAssetsForNetwork(
-  braveWalletService: BraveWallet.BraveWalletServiceRemote,
-  network: BraveWallet.NetworkInfo
-) {
+async function fetchAssetsForNetwork({
+  assetListType,
+  blockchainRegistry,
+  braveWalletService,
+  network
+}:
+  | {
+      assetListType: 'user'
+      braveWalletService: BraveWallet.BraveWalletServiceRemote
+      blockchainRegistry?: never
+      network: BraveWallet.NetworkInfo
+    }
+  | {
+      assetListType: 'known'
+      blockchainRegistry: BraveWallet.BlockchainRegistryRemote
+      braveWalletService?: never
+      network: BraveWallet.NetworkInfo
+    }) {
   // Get a list of user tokens for each coinType and network.
-  const { tokens } = await braveWalletService.getUserAssets(
-    network.chainId,
-    network.coin
-  )
+  const { tokens } =
+    assetListType === 'user'
+      ? await braveWalletService.getUserAssets(network.chainId, network.coin)
+      : await blockchainRegistry.getAllTokens(network.chainId, network.coin)
 
   // Adds a logo and chainId to each token object
   const tokenList: BraveWallet.BlockchainToken[] = await mapLimit(
@@ -445,4 +430,94 @@ async function fetchUserAssetsForNetwork(
   }
 
   return tokenList
+}
+async function makeTokenRegistry({
+  braveWalletService,
+  blockchainRegistry,
+  networksRegistry,
+  type
+}:
+  | {
+      type: 'user'
+      networksRegistry: NetworksRegistry
+      braveWalletService: BraveWallet.BraveWalletServiceRemote
+      blockchainRegistry?: never
+    }
+  | {
+      type: 'known'
+      networksRegistry: NetworksRegistry
+      blockchainRegistry: BraveWallet.BlockchainRegistryRemote
+      braveWalletService?: never
+    }) {
+  const tokenIdsByChainId: Record<string, string[]> = {}
+  const tokenIdsByCoinType: Record<BraveWallet.CoinType, string[]> = {}
+  const visibleTokenIds: string[] = []
+  const visibleTokenIdsByChainId: Record<string, string[]> = {}
+  const visibleTokenIdsByCoinType: Record<BraveWallet.CoinType, string[]> = {}
+
+  const deletedTokenIds: string[] = type === 'user' ? getDeletedTokenIds() : []
+  const hiddenTokenIds: string[] = type === 'user' ? getHiddenTokenIds() : []
+  const removedTokenIds = deletedTokenIds.concat(hiddenTokenIds)
+
+  const tokenListsForNetworks = await mapLimit(
+    Object.entries(networksRegistry.entities),
+    10,
+    async ([networkId, network]: [string, BraveWallet.NetworkInfo]) => {
+      if (!network) {
+        return []
+      }
+
+      const fullTokensListForNetwork: BraveWallet.BlockchainToken[] =
+        type === 'known'
+          ? await fetchAssetsForNetwork({
+              assetListType: type,
+              blockchainRegistry,
+              network
+            })
+          : await fetchAssetsForNetwork({
+              assetListType: type,
+              braveWalletService,
+              network
+            })
+
+      tokenIdsByChainId[networkId] = fullTokensListForNetwork.map(getAssetIdKey)
+
+      tokenIdsByCoinType[network.coin] = (
+        tokenIdsByCoinType[network.coin] || []
+      ).concat(tokenIdsByChainId[networkId] || [])
+
+      const visibleTokensForNetwork: BraveWallet.BlockchainToken[] =
+        fullTokensListForNetwork.filter((t) =>
+          t.visible && type === 'user'
+            ? !removedTokenIds.includes(getAssetIdKey(t))
+            : true
+        )
+
+      visibleTokenIdsByChainId[networkId] =
+        visibleTokensForNetwork.map(getAssetIdKey)
+
+      visibleTokenIdsByCoinType[network.coin] = (
+        visibleTokenIdsByCoinType[network.coin] || []
+      ).concat(visibleTokenIdsByChainId[networkId] || [])
+
+      visibleTokenIds.push(...visibleTokenIdsByChainId[networkId])
+
+      return fullTokensListForNetwork
+    }
+  )
+
+  return blockchainTokenEntityAdaptor.setAll(
+    {
+      ...blockchainTokenEntityAdaptorInitialState,
+      idsByChainId: tokenIdsByChainId,
+      tokenIdsByChainId,
+      visibleTokenIds,
+      visibleTokenIdsByChainId,
+      visibleTokenIdsByCoinType,
+      idsByCoinType: tokenIdsByCoinType,
+      deletedTokenIds,
+      hiddenTokenIds
+    },
+    tokenListsForNetworks.flat(1)
+  )
 }
