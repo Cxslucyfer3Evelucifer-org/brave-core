@@ -47,6 +47,7 @@
 #include "components/shared_highlighting/core/common/shared_highlighting_features.h"
 #include "components/signin/public/base/signin_buildflags.h"
 #include "components/subresource_filter/core/common/common_features.h"
+#include "content/browser/file_system_access/features.h"
 #include "content/common/features.h"
 #include "content/public/common/content_features.h"
 #include "content/public/common/dips_utils.h"
@@ -166,6 +167,7 @@ IN_PROC_BROWSER_TEST_F(BraveMainDelegateBrowserTest, DisabledFeatures) {
       &companion::visual_query::features::kVisualQuerySuggestions,
       &content_settings::features::kTrackingProtection3pcd,
       &content_settings::features::kUserBypassUI,
+      &content::features::kFileSystemAccessDirectoryIterationBlocklistCheck,
       &enterprise_connectors::kLocalContentAnalysisEnabled,
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
       &enterprise_signals::features::kDeviceSignalsConsentDialog,
