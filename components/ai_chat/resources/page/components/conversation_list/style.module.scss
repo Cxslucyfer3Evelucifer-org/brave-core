@@ -84,6 +84,15 @@
   margin: 0;
   white-space: pre-wrap;
   padding-top: 5px;
+
+  pre {
+    overflow: auto;
+    background: var(--leo-color-page-background);
+  }
+
+  code {
+    background: var(--leo-color-page-background);
+  }
 }
 
 .feedbackFormPortal {

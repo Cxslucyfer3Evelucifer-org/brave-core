@@ -20,6 +20,11 @@ const SUGGESTION_STATUS_SHOW_BUTTON: mojom.SuggestionGenerationStatus[] = [
   mojom.SuggestionGenerationStatus.IsGenerating
 ]
 
+// @ts-expect-error
+const escapeHTMLPolicy = window.trustedTypes.createPolicy("sanitize-inner-html", {
+  createHTML: (toEscape: any) => toEscape
+})
+
 function ConversationList() {
   // Scroll the last conversation item in to view when entries are added.
   const lastConversationEntryElementRef = React.useRef<HTMLDivElement>(null)
@@ -100,8 +105,12 @@ function ConversationList() {
                 <div className={avatarStyles}>
                   <Icon name={isHuman ? 'user-circle' : 'product-brave-leo'} />
                 </div>
-                <div className={styles.message}>
-                  {turn.text}
+                <div
+                  className={styles.message}
+                >
+                  <div dangerouslySetInnerHTML={{ __html: escapeHTMLPolicy.createHTML(turn.text
+                      .replace(/```(.*?)```/gs, (match, p1) => `<pre>${p1}</pre>`)
+                      .replace(/`(.*?)`/gs, (match, p1) => `<code>${p1}</code>`)) }} />
                   {isLoading && <span className={styles.caret} />}
                   {showSiteTitle && <div className={styles.siteTitleContainer}><SiteTitle size="default" /></div>}
                 </div>
