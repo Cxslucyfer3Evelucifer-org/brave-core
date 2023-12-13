@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
-index a1e6dcd5a2b8754b0896e743c1a7b67007fe08c9..737c87b8381bbb7cf826a87a2e153501eb730d47 100644
+index d8f414083d61c0f4f84ab1f15a4b964cac05a1ba..505b57f9c842b4b519137ee86762815dd4773dce 100644
 --- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 +++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 @@ -21,6 +21,7 @@ import '../settings_page/settings_animated_pages.js';
