@@ -11,11 +11,14 @@
 #include "build/build_config.h"
 #include "components/keyed_service/core/keyed_service.h"
 
+class PrefService;
 class SearchEngineTracker;
 
+#if !BUILDFLAG(IS_ANDROID)
 namespace extensions {
 class ExtensionRegistry;
 }  // namespace extensions
+#endif
 
 namespace history {
 class HistoryService;
@@ -28,14 +31,21 @@ class MiscAndroidMetrics;
 #else
 class ExtensionMetrics;
 #endif
+class LanguageMetrics;
 class PageMetrics;
-class ProcessMiscMetrics;
 
 class ProfileMiscMetricsService : public KeyedService {
  public:
-  ProfileMiscMetricsService(extensions::ExtensionRegistry* extension_registry,
+#if BUILDFLAG(IS_ANDROID)
+  ProfileMiscMetricsService(PrefService* profile_prefs,
                             history::HistoryService* history_service,
                             SearchEngineTracker* search_engine_tracker);
+#else
+  ProfileMiscMetricsService(PrefService* profile_prefs,
+                            extensions::ExtensionRegistry* extension_registry,
+                            history::HistoryService* history_service,
+                            SearchEngineTracker* search_engine_tracker);
+#endif
   ~ProfileMiscMetricsService() override;
 
   ProfileMiscMetricsService(const ProfileMiscMetricsService&) = delete;
@@ -50,6 +60,7 @@ class ProfileMiscMetricsService : public KeyedService {
 #endif
 
  private:
+  std::unique_ptr<LanguageMetrics> language_metrics_ = nullptr;
   std::unique_ptr<PageMetrics> page_metrics_ = nullptr;
 #if BUILDFLAG(IS_ANDROID)
   std::unique_ptr<MiscAndroidMetrics> misc_android_metrics_ = nullptr;

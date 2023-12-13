@@ -12,7 +12,12 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/history/core/browser/history_service.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
+#include "components/user_prefs/user_prefs.h"
+
+#if !BUILDFLAG(IS_ANDROID)
+#include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extension_registry_factory.h"
+#endif
 
 namespace misc_metrics {
 
@@ -35,7 +40,9 @@ ProfileMiscMetricsServiceFactory::ProfileMiscMetricsServiceFactory()
     : BrowserContextKeyedServiceFactory(
           "ProfileMiscMetricsService",
           BrowserContextDependencyManager::GetInstance()) {
+#if !BUILDFLAG(IS_ANDROID)
   DependsOn(extensions::ExtensionRegistryFactory::GetInstance());
+#endif
   DependsOn(HistoryServiceFactory::GetInstance());
   DependsOn(SearchEngineTrackerFactory::GetInstance());
 }
@@ -44,14 +51,22 @@ ProfileMiscMetricsServiceFactory::~ProfileMiscMetricsServiceFactory() = default;
 
 KeyedService* ProfileMiscMetricsServiceFactory::BuildServiceInstanceFor(
     content::BrowserContext* context) const {
-  auto* extension_registry =
+#if !BUILDFLAG(IS_ANDROID)
+  extensions::ExtensionRegistry* extension_registry =
       extensions::ExtensionRegistryFactory::GetForBrowserContext(context);
+#endif
   auto* history_service = HistoryServiceFactory::GetForProfile(
       Profile::FromBrowserContext(context), ServiceAccessType::EXPLICIT_ACCESS);
   auto* search_engine_tracker =
       SearchEngineTrackerFactory::GetInstance()->GetForBrowserContext(context);
-  return new ProfileMiscMetricsService(extension_registry, history_service,
+#if BUILDFLAG(IS_ANDROID)
+  return new ProfileMiscMetricsService(user_prefs::UserPrefs::Get(context),
+                                       history_service, search_engine_tracker);
+#else
+  return new ProfileMiscMetricsService(user_prefs::UserPrefs::Get(context),
+                                       extension_registry, history_service,
                                        search_engine_tracker);
+#endif
 }
 
 content::BrowserContext*

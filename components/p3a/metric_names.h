@@ -208,6 +208,7 @@ inline constexpr auto kCollectedSlowHistograms =
   base::MakeFixedFlatSetSorted<std::string_view>({
     "Brave.Accessibility.DisplayZoomEnabled",
     "Brave.Core.DocumentsDirectorySizeMB",
+    "Brave.Core.PrimaryLang",
     "Brave.Core.ProfileCount",
     "Brave.Core.UsageMonthly",
     "Brave.General.BottomBarLocation",
