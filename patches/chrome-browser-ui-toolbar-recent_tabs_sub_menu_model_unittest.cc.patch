@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/ui/toolbar/recent_tabs_sub_menu_model_unittest.cc b/chrome/browser/ui/toolbar/recent_tabs_sub_menu_model_unittest.cc
-index 582d0ed84e990ed6e3111bed8dcc67a8a3e1f947..20d4d2b6ed311d09c565b117587cb73fb8de351d 100644
+index b6b4efc36f2785fe15685af3ca1e4a765f13c4e4..3c712dfc26726f60d261ceed5ff225947336dbc7 100644
 --- a/chrome/browser/ui/toolbar/recent_tabs_sub_menu_model_unittest.cc
 +++ b/chrome/browser/ui/toolbar/recent_tabs_sub_menu_model_unittest.cc
-@@ -175,6 +175,7 @@ class RecentTabsSubMenuModelTest : public BrowserWithTestWindowTest,
+@@ -176,6 +176,7 @@ class RecentTabsSubMenuModelTest : public BrowserWithTestWindowTest,
      helper->VerifyExport(session_sync_service_->GetOpenTabsUIDelegate());
    }
  
@@ -10,27 +10,7 @@ index 582d0ed84e990ed6e3111bed8dcc67a8a3e1f947..20d4d2b6ed311d09c565b117587cb73f
   private:
    raw_ptr<sync_sessions::SessionSyncService, DanglingUntriaged>
        session_sync_service_;
-@@ -643,15 +644,15 @@ TEST_P(RecentTabsSubMenuModelTest, MaxSessionsAndRecency) {
-     EXPECT_THAT(base::span<const std::u16string>(
-                     recent_tabs_builder.GetTabTitlesSortedByRecency())
-                     .subspan(0, 3),
--                ElementsAre(model.GetLabelAt(6), model.GetLabelAt(9),
--                            model.GetLabelAt(12)));
-+                ElementsAre(model.GetLabelAt(7), model.GetLabelAt(10),
-+                            model.GetLabelAt(13)));
- 
-   } else {
-     EXPECT_THAT(base::span<const std::u16string>(
-                     recent_tabs_builder.GetTabTitlesSortedByRecency())
-                     .subspan(0, 3),
--                ElementsAre(model.GetLabelAt(5), model.GetLabelAt(8),
--                            model.GetLabelAt(11)));
-+                ElementsAre(model.GetLabelAt(6), model.GetLabelAt(9),
-+                            model.GetLabelAt(12)));
-   }
- }
- 
-@@ -696,10 +697,10 @@ TEST_P(RecentTabsSubMenuModelTest, MaxTabsPerSessionAndRecency) {
+@@ -737,10 +738,10 @@ TEST_P(RecentTabsSubMenuModelTest, MaxTabsPerSessionAndRecency) {
    EXPECT_THAT(base::span<const std::u16string>(
                    recent_tabs_builder.GetTabTitlesSortedByRecency())
                    .subspan(0, 4),
