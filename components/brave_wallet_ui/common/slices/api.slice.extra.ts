@@ -152,11 +152,11 @@ export const useGetCombinedTokensRegistryQuery = (
 }
 
 export const useGetCombinedTokensListQuery = (
-  arg?: undefined,
+  arg?: undefined | typeof skipToken,
   opts?: { skip?: boolean }
 ) => {
   const { isLoadingUserTokens, userTokens } = useGetUserTokensRegistryQuery(
-    undefined,
+    arg || undefined,
     {
       selectFromResult: (res) => ({
         isLoadingUserTokens: res.isLoading,
@@ -256,30 +256,31 @@ export const usePendingTransactionsQuery = (
   })
 }
 
-export const useGetIsRegistryTokenQuery = (arg: {
-  chainId: string,
-  address: string
-} | typeof skipToken) => {
-  return useGetTokensRegistryQuery(
-    undefined,
-    {
-      selectFromResult: (res) => {
-        if (arg === skipToken) {
-          return {
-            isLoading: res.isLoading
-          }
-        }
-
-        const assetId = res.data?.idsByChainId[arg.chainId].find((id) =>
-          id.toString().includes(arg?.address)
-        )
-        const asset = assetId ? res.data?.entities[assetId] : undefined
-
+export const useGetIsRegistryTokenQuery = (
+  arg:
+    | {
+        chainId: string
+        address: string
+      }
+    | typeof skipToken
+) => {
+  return useGetTokensRegistryQuery(undefined, {
+    selectFromResult: (res) => {
+      if (arg === skipToken) {
         return {
-          isLoading: res.isLoading,
-          isVerified: Boolean(asset),
+          isLoading: res.isLoading
         }
       }
+
+      const assetId = res.data?.idsByChainId[arg.chainId].find((id) =>
+        id.toString().includes(arg?.address)
+      )
+      const asset = assetId ? res.data?.entities[assetId] : undefined
+
+      return {
+        isLoading: res.isLoading,
+        isVerified: Boolean(asset)
+      }
     }
-  )
+  })
 }
