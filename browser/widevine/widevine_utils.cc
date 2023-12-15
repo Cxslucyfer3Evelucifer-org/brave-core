@@ -6,10 +6,10 @@
 #include "brave/browser/widevine/widevine_utils.h"
 
 #include <string>
+#include <vector>
 
 #include "base/files/file_util.h"
 #include "base/path_service.h"
-#include "chrome/common/chrome_paths.h"
 #include "base/task/task_traits.h"
 #include "base/task/thread_pool.h"
 #include "brave/browser/widevine/widevine_permission_request.h"
