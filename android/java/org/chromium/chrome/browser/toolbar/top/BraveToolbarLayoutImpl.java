@@ -972,12 +972,14 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             }
         };
 
-        tosTextSS.setSpan(tosClickableSpan, termsOfServiceIndex,
+        tosTextSS.setSpan(
+                tosClickableSpan,
+                termsOfServiceIndex,
                 termsOfServiceIndex
                         + context.getResources().getString(R.string.terms_of_service).length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        tosTextSS.setSpan(new ForegroundColorSpan(context.getResources().getColor(
-                                  R.color.brave_rewards_modal_theme_color)),
+        tosTextSS.setSpan(
+                new ForegroundColorSpan(context.getColor(R.color.brave_rewards_modal_theme_color)),
                 termsOfServiceIndex,
                 termsOfServiceIndex
                         + context.getResources().getString(R.string.terms_of_service).length(),
@@ -1001,7 +1003,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 privacyPolicyIndex
                         + context.getResources().getString(R.string.privacy_policy).length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        tosTextSS.setSpan(new ForegroundColorSpan(context.getResources().getColor(
+        tosTextSS.setSpan(new ForegroundColorSpan(context.getColor(
                                   R.color.brave_rewards_modal_theme_color)),
                 privacyPolicyIndex,
                 privacyPolicyIndex
