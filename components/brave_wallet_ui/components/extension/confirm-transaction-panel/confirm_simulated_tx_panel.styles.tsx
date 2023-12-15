@@ -172,13 +172,13 @@ export const ContractOriginColumn = styled.div`
 
 export const NetworkNameText = styled.p`
   color: var(${leo.color.text.secondary});
-  font: ${leo.font.primary.small.regular};
+  font: ${leo.font.small.regular};
   margin: 0px;
 `
 
 export const AccountNameAndAddress = styled.div`
   color: var(${leo.color.text.tertiary});
-  font: ${leo.font.primary.xSmall.regular};
+  font: ${leo.font.xSmall.regular};
   margin: 0px;
   word-break: break-all;
 `
