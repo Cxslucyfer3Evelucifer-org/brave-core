@@ -560,7 +560,7 @@ void BraveContentBrowserClient::
     RegisterAssociatedInterfaceBindersForRenderFrameHost(
         content::RenderFrameHost& render_frame_host,                // NOLINT
         blink::AssociatedInterfaceRegistry& associated_registry) {  // NOLINT
-#if BUILDFLAG(ENABLE_WIDEVINE)
+#if BUILDFLAG(ENABLE_WIDEVINE) && (!BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY))
   associated_registry.AddInterface<
       brave_drm::mojom::BraveDRM>(base::BindRepeating(
       [](content::RenderFrameHost* render_frame_host,

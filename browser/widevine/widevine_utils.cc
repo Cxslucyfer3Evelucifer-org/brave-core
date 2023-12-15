@@ -9,6 +9,7 @@
 
 #include "base/files/file_util.h"
 #include "base/path_service.h"
+#include "chrome/common/chrome_paths.h"
 #include "base/task/task_traits.h"
 #include "base/task/thread_pool.h"
 #include "brave/browser/widevine/widevine_permission_request.h"
@@ -27,9 +28,12 @@
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/browser/media/cdm_registry_impl.h"
 #include "third_party/widevine/cdm/widevine_cdm_common.h"
 
 using content::BrowserThread;
+using content::CdmInfo;
+using content::CdmRegistryImpl;
 
 namespace {
 
@@ -130,7 +134,25 @@ void RegisterWidevineProfilePrefsForMigration(
 }
 
 void RegisterWidevineLocalstatePrefs(PrefRegistrySimple* registry) {
+  // On Arm64 Linux, we would actually like the default value to be
+  // HasBundledWidevine(). But it's not possible to call this function here.
+  // So we set the default value to false here and call HasBundledWidevine()
+  // further below.
   registry->RegisterBooleanPref(kWidevineEnabled, false);
+}
+
+bool HasBundledWidevine() {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  CdmRegistryImpl* cdm_registry = CdmRegistryImpl::GetInstance();
+  CHECK(cdm_registry);
+  const std::vector<CdmInfo>& cdms = cdm_registry->GetRegisteredCdms();
+  base::FilePath bundled_dir;
+  CHECK(base::PathService::Get(chrome::DIR_BUNDLED_WIDEVINE_CDM, &bundled_dir));
+  for (auto it : cdms) {
+    if (it.key_system == kWidevineKeySystem && bundled_dir.IsParent(it.path))
+      return true;
+  }
+  return false;
 }
 
 bool IsWidevineEnabled() {
@@ -152,8 +174,15 @@ void MigrateWidevinePrefs(PrefService* prefs) {
   // they were explicitly set by primary prefs' value. After that, we don't
   // need to try migration again and prefs from profiles are already cleared.
   if (local_state->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
-    local_state->SetBoolean(kWidevineEnabled,
-                            prefs->GetBoolean(kWidevineEnabled));
+    if (prefs->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
+      // N.B.: This is not actually a migration. But this point in the code is
+      // just too perfect to implement the following logic:
+      if (HasBundledWidevine())
+        local_state->SetDefaultPrefValue(kWidevineEnabled, base::Value(true));
+    } else {
+      local_state->SetBoolean(kWidevineEnabled,
+                              prefs->GetBoolean(kWidevineEnabled));
+    }
   }
 
   // Clear deprecated prefs.
