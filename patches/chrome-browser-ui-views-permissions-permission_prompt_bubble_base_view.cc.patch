@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/views/permissions/permission_prompt_bubble_base_view.cc b/chrome/browser/ui/views/permissions/permission_prompt_bubble_base_view.cc
-index 44456785156b0fa20bfd25294ce2b04de9a35839..f403ab6d7cc699588b36fe76839891b2937f0052 100644
+index 826928961f1191d0d510354413439c9423a8aa15..5c0cbca98fa8c6e28aeb71b7fec227eb1e2fdbf9 100644
 --- a/chrome/browser/ui/views/permissions/permission_prompt_bubble_base_view.cc
 +++ b/chrome/browser/ui/views/permissions/permission_prompt_bubble_base_view.cc
 @@ -158,6 +158,7 @@ PermissionPromptBubbleBaseView::PermissionPromptBubbleBaseView(

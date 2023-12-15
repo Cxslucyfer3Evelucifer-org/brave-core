@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/extensions/updater/chrome_update_client_config.h b/chrome/browser/extensions/updater/chrome_update_client_config.h
-index 9e96ef8b09f8d108253945bd0db227cef398a4a4..8bf94d0f74e1e9bce5d76bed069e74b893070fb8 100644
+index 43222dd4d63f4fd342c000578057201ad7565f64..4514e1e7679ec3a3fb121a991c0f3f00aea0be60 100644
 --- a/chrome/browser/extensions/updater/chrome_update_client_config.h
 +++ b/chrome/browser/extensions/updater/chrome_update_client_config.h
-@@ -85,6 +85,7 @@ class ChromeUpdateClientConfig : public update_client::Configurator {
+@@ -84,6 +84,7 @@ class ChromeUpdateClientConfig : public update_client::Configurator {
    absl::optional<bool> IsMachineExternallyManaged() const override;
    update_client::UpdaterStateProvider GetUpdaterStateProvider() const override;
    absl::optional<base::FilePath> GetCrxCachePath() const override;

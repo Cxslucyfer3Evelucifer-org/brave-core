@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/views/location_bar/location_icon_view.cc b/chrome/browser/ui/views/location_bar/location_icon_view.cc
-index d39ffdf2f679d32a0e15a54dd077535e849200f5..ae04470c6f8dcc7275bf5bf9f6ef8b61dca3328d 100644
+index 99d25be10113b394d1da7f8052c914d9f204e5ef..eacbf0e9ae5c83eeb99e5b000e6f5eebd371ed8e 100644
 --- a/chrome/browser/ui/views/location_bar/location_icon_view.cc
 +++ b/chrome/browser/ui/views/location_bar/location_icon_view.cc
 @@ -171,6 +171,7 @@ bool LocationIconView::GetShowText() const {

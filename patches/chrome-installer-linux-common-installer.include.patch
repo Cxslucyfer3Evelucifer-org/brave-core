@@ -1,5 +1,5 @@
 diff --git a/chrome/installer/linux/common/installer.include b/chrome/installer/linux/common/installer.include
-index 5d8b4116299b7af2491ff68409cdf01ed4e22017..2cb3edc8fea8c0fd749486a35b685a734828c688 100644
+index 39c47c22de80357dbd7cfdcb4d38739da87e5aa7..5479e8155b7c1533b62367bc829cd37c94a704b5 100644
 --- a/chrome/installer/linux/common/installer.include
 +++ b/chrome/installer/linux/common/installer.include
 @@ -75,6 +75,7 @@ process_template() (

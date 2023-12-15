@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/views/profiles/profile_menu_view_base.h b/chrome/browser/ui/views/profiles/profile_menu_view_base.h
-index 6b1e5c1d0c649037e0abc2b049f4b452f46e2145..750e45de47380a6be85968d9a753fcb710436565 100644
+index c752c7066e152c1a3f73b2b37dc8a5f34366c715..980a90bc7cf834827d680aa416699274f034063c 100644
 --- a/chrome/browser/ui/views/profiles/profile_menu_view_base.h
 +++ b/chrome/browser/ui/views/profiles/profile_menu_view_base.h
 @@ -164,6 +164,7 @@ class ProfileMenuViewBase : public content::WebContentsDelegate,
