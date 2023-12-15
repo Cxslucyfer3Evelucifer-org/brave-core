@@ -1,5 +1,5 @@
 diff --git a/tools/licenses/licenses.py b/tools/licenses/licenses.py
-index 7edafe636d6640a964c6a31f4def1d7507cb211d..d4e2dc6394abdb25c4b2109de4f7860de60f5eda 100755
+index 30f81dd2bf32205867d5dd5f72ed308e4abbfcc5..8078a5077505591145385de6582b4896645b9605 100755
 --- a/tools/licenses/licenses.py
 +++ b/tools/licenses/licenses.py
 @@ -41,6 +41,7 @@ _REPOSITORY_ROOT = os.path.abspath(
@@ -8,9 +8,9 @@ index 7edafe636d6640a964c6a31f4def1d7507cb211d..d4e2dc6394abdb25c4b2109de4f7860d
  import action_helpers
 +from brave_license_helper import AddBraveCredits, BRAVE_THIRD_PARTY_DIRS, CheckBraveMissingLicense
  
- # Paths from the root of the tree to directories to skip.
- PRUNE_PATHS = set([
-@@ -421,6 +422,7 @@ SPECIAL_CASES = {
+ METADATA_FILE_NAMES = frozenset({
+     "README.chromium",
+@@ -426,6 +427,7 @@ SPECIAL_CASES = {
          "License File": ["//third_party/selenium-atoms/LICENSE.closure"],
      },
  }
@@ -18,7 +18,7 @@ index 7edafe636d6640a964c6a31f4def1d7507cb211d..d4e2dc6394abdb25c4b2109de4f7860d
  
  # These buildtools/third_party directories only contain
  # chromium build files. The actual third_party source files and their
-@@ -836,7 +838,8 @@ def FindThirdPartyDirs(prune_paths, root, extra_third_party_dirs=None):
+@@ -868,7 +870,8 @@ def FindThirdPartyDirs(prune_paths, root, extra_third_party_dirs=None):
        if skip in dirs:
          dirs.remove(skip)
  
@@ -28,8 +28,8 @@ index 7edafe636d6640a964c6a31f4def1d7507cb211d..d4e2dc6394abdb25c4b2109de4f7860d
        # Add all subdirectories that are not marked for skipping.
        for dir in dirs:
          dirpath = os.path.join(path, dir)
-@@ -1094,7 +1097,8 @@ def GenerateCredits(file_template_file,
-                                     enable_warnings=enable_warnings)
+@@ -1129,7 +1132,8 @@ def GenerateCredits(file_template_file,
+                                        enable_warnings=enable_warnings)
        if not directory_metadata:
          continue
 -    except LicenseError:
