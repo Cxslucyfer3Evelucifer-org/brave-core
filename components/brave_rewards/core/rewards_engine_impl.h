@@ -57,6 +57,10 @@ inline constexpr uint64_t kPublisherListRefreshInterval =
 class InitializationManager;
 class LinkageChecker;
 
+namespace wallet_provider {
+class WalletProvider;
+}
+
 class RewardsEngineImpl : public mojom::RewardsEngine {
  public:
   explicit RewardsEngineImpl(
@@ -378,6 +382,9 @@ class RewardsEngineImpl : public mojom::RewardsEngine {
   uphold::Uphold* uphold() { return &uphold_; }
 
   zebpay::ZebPay* zebpay() { return &zebpay_; }
+
+  wallet_provider::WalletProvider* GetExternalWalletProvider(
+      const std::string& wallet_type);
 
   // This method is virtualised for test-only purposes.
   virtual database::Database* database();

@@ -164,47 +164,6 @@ TEST_F(GeminiUtilTest, GenerateRandomHexString) {
   EXPECT_EQ(result.length(), 64u);
 }
 
-INSTANTIATE_TEST_SUITE_P(GenerateLinks,
-                         GeminiUtilTest,
-                         Combine(Values(mojom::Environment::PRODUCTION,
-                                        mojom::Environment::STAGING,
-                                        mojom::Environment::DEVELOPMENT),
-                                 Values(mojom::WalletStatus::kNotConnected,
-                                        mojom::WalletStatus::kConnected,
-                                        mojom::WalletStatus::kLoggedOut)),
-                         [](const auto& info) {
-                           return (std::ostringstream()
-                                   << std::get<0>(info.param) << '_'
-                                   << std::get<1>(info.param))
-                               .str();
-                         });
-
-TEST_P(GeminiUtilTest, Paths) {
-  const auto [environment, wallet_status] = GetParam();
-
-  _environment = environment;
-  auto wallet = mojom::ExternalWallet::New();
-  wallet->status = wallet_status;
-
-  const auto* account_url = environment == mojom::Environment::PRODUCTION
-                                ? BUILDFLAG(GEMINI_PRODUCTION_OAUTH_URL)
-                                : BUILDFLAG(GEMINI_SANDBOX_OAUTH_URL);
-
-  const auto activity_url =
-      wallet->status == mojom::WalletStatus::kConnected
-          ? base::StrCat({environment == mojom::Environment::PRODUCTION
-                              ? BUILDFLAG(GEMINI_PRODUCTION_OAUTH_URL)
-                              : BUILDFLAG(GEMINI_SANDBOX_OAUTH_URL),
-                          "/balances"})
-          : "";
-
-  EXPECT_FALSE(gemini::GenerateLinks(nullptr));
-  const auto result = GenerateLinks(std::move(wallet));
-  EXPECT_TRUE(result);
-  EXPECT_EQ(result->account_url, account_url);
-  EXPECT_EQ(result->activity_url, activity_url);
-}
-
 TEST_F(GeminiUtilTest, CheckStatusCodeTest) {
   EXPECT_EQ(endpoint::gemini::CheckStatusCode(net::HTTP_UNAUTHORIZED),
             mojom::Result::EXPIRED_TOKEN);
