@@ -34,6 +34,12 @@ inline constexpr char kBraveChatP3ALastPremiumCheck[] =
     "brave.ai_chat.p3a_last_premium_check";
 inline constexpr char kBraveChatP3ALastPremiumStatus[] =
     "brave.ai_chat.p3a_last_premium_status";
+inline constexpr char kBraveChatP3AFirstUsageTime[] =
+    "brave.ai_chat.p3a_first_usage_time";
+inline constexpr char kBraveChatP3ALastUsageTime[] =
+    "brave.ai_chat.p3a_last_usage_time";
+inline constexpr char kBraveChatP3AUsedSecondDay[] =
+    "brave.ai_chat.p3a_used_second_day";
 
 void RegisterProfilePrefs(PrefRegistrySimple* registry);
 
