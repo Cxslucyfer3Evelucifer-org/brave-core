@@ -11,6 +11,7 @@ import {
 } from '../constants/types'
 import { networkEntityAdapter } from '../common/slices/entities/network.entity'
 import { LOCAL_STORAGE_KEYS } from '../common/constants/local-storage-keys'
+import { TokenBalancesRegistry } from '../common/slices/entities/token-balance.entity'
 
 export const parseJSONFromLocalStorage = <T = any>(
   storageString: keyof typeof LOCAL_STORAGE_KEYS,
@@ -89,5 +90,27 @@ export function storeCurrentAndPreviousPanel(
       LOCAL_STORAGE_KEYS.LAST_VISITED_PANEL,
       previousPanel
     )
+  }
+}
+
+export const getPersistedTokenBalances = (): TokenBalancesRegistry => {
+  try {
+    return JSON.parse(
+      window.localStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN_BALANCES) || '{}'
+    )
+  } catch (error) {
+    console.error(error)
+    return {}
+  }
+}
+
+export const setPersistedTokenBalances = (registry: TokenBalancesRegistry) => {
+  try {
+    window.localStorage.setItem(
+      LOCAL_STORAGE_KEYS.TOKEN_BALANCES,
+      JSON.stringify(registry)
+    )
+  } catch (error) {
+    console.error(error)
   }
 }
