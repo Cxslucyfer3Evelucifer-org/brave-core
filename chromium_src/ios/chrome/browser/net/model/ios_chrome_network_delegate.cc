@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "ios/chrome/browser/net/ios_chrome_network_delegate.h"
+#include "ios/chrome/browser/net/model/ios_chrome_network_delegate.h"
 
 #define IOSChromeNetworkDelegate IOSChromeNetworkDelegate_ChromiumImpl
-#include "src/ios/chrome/browser/net/ios_chrome_network_delegate.cc"
+#include "src/ios/chrome/browser/net/model/ios_chrome_network_delegate.cc"
 #undef IOSChromeNetworkDelegate
 
 #include "brave/components/constants/brave_services_key.h"
