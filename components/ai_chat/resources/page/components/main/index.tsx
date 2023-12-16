@@ -40,7 +40,6 @@ function Main() {
     getPageHandlerInstance().pageHandler.clearConversationHistory()
   }
 
-
   const shouldShowPremiumSuggestionForModel =
     hasAcceptedAgreement &&
     !context.isPremiumStatusFetching && // Avoid flash of content
@@ -119,8 +118,10 @@ function Main() {
         [styles.flushBottom]: !hasAcceptedAgreement
       })}>
         <AlertCenter position='top-left' className={styles.alertCenter} />
-        {context.hasAcceptedAgreement && <ModelIntro />}
-        <ConversationList />
+        {context.hasAcceptedAgreement && <>
+          <ModelIntro />
+          <ConversationList />
+        </>}
         {currentErrorElement && (
           <div className={styles.promptContainer}>{currentErrorElement}</div>
         )}
