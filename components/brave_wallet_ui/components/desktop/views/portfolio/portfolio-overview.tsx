@@ -34,9 +34,7 @@ import {
   LOCAL_STORAGE_KEYS //
 } from '../../../../common/constants/local-storage-keys'
 import { WalletStatus } from '../../../../common/async/brave_rewards_api_proxy'
-import {
-  emptyRewardsInfo //
-} from '../../../../common/slices/endpoints/rewards.endpoints'
+import { emptyRewardsInfo } from '../../../../common/async/base-query-cache'
 
 // actions
 import { WalletActions } from '../../../../common/actions'
