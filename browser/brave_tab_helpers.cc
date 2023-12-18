@@ -146,7 +146,8 @@ void AttachTabHelpers(content::WebContents* web_contents) {
   }
 #endif
 
-#if BUILDFLAG(ENABLE_WIDEVINE) && (!BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY))
+#if BUILDFLAG(ENABLE_WIDEVINE) && \
+    (!BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY))
   BraveDrmTabHelper::CreateForWebContents(web_contents);
 #endif
 

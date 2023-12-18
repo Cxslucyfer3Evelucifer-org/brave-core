@@ -27,8 +27,8 @@
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "content/public/browser/browser_thread.h"
 #include "content/browser/media/cdm_registry_impl.h"
+#include "content/public/browser/browser_thread.h"
 #include "third_party/widevine/cdm/widevine_cdm_common.h"
 
 using content::BrowserThread;
@@ -149,8 +149,9 @@ bool HasBundledWidevine() {
   base::FilePath bundled_dir;
   CHECK(base::PathService::Get(chrome::DIR_BUNDLED_WIDEVINE_CDM, &bundled_dir));
   for (auto it : cdms) {
-    if (it.key_system == kWidevineKeySystem && bundled_dir.IsParent(it.path))
+    if (it.key_system == kWidevineKeySystem && bundled_dir.IsParent(it.path)) {
       return true;
+    }
   }
   return false;
 }
@@ -177,8 +178,9 @@ void MigrateWidevinePrefs(PrefService* prefs) {
     if (prefs->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
       // N.B.: This is not actually a migration. But this point in the code is
       // just too perfect to implement the following logic:
-      if (HasBundledWidevine())
+      if (HasBundledWidevine()) {
         local_state->SetDefaultPrefValue(kWidevineEnabled, base::Value(true));
+      }
     } else {
       local_state->SetBoolean(kWidevineEnabled,
                               prefs->GetBoolean(kWidevineEnabled));
