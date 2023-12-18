@@ -146,8 +146,8 @@ bool HasBundledWidevine() {
   CdmRegistryImpl* cdm_registry = CdmRegistryImpl::GetInstance();
   CHECK(cdm_registry);
   const std::vector<CdmInfo>& cdms = cdm_registry->GetRegisteredCdms();
-  base::FilePath bundled_dir = base::PathService::CheckedGet(
-    chrome::DIR_BUNDLED_WIDEVINE_CDM);
+  base::FilePath bundled_dir =
+      base::PathService::CheckedGet(chrome::DIR_BUNDLED_WIDEVINE_CDM);
   for (auto it : cdms) {
     if (it.key_system == kWidevineKeySystem && bundled_dir.IsParent(it.path)) {
       return true;
