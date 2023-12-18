@@ -6,13 +6,22 @@
 #include "brave/components/ai_chat/content/browser/page_content_fetcher.h"
 
 #include <memory>
+#include <sstream>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 #include "base/containers/contains.h"
 #include "base/containers/fixed_flat_set.h"
 #include "base/functional/bind.h"
+#include "base/task/bind_post_task.h"
+#include "base/task/thread_pool.h"
 #include "brave/components/ai_chat/core/common/mojom/page_content_extractor.mojom.h"
+#include "brave/components/l10n/common/locale_util.h"
+#include "brave/components/text_recognition/browser/text_recognition.h"
+#include "brave/components/text_recognition/common/buildflags/buildflags.h"
 #include "content/public/browser/browser_context.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/bindings/remote.h"
@@ -25,9 +34,22 @@
 #include "services/network/public/mojom/url_response_head.mojom.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 
+#if BUILDFLAG(IS_WIN)
+#include "base/task/single_thread_task_runner.h"
+#endif
+
 namespace ai_chat {
 
 namespace {
+
+#if BUILDFLAG(ENABLE_TEXT_RECOGNITION)
+// Hosts to use for screenshot based text retrieval
+constexpr auto kScreenshotRetrievalHosts =
+    base::MakeFixedFlatSetSorted<std::string_view>({
+        "docs.google.com",
+        "twitter.com",
+    });
+#endif
 
 constexpr auto kVideoPageContentTypes =
     base::MakeFixedFlatSet<ai_chat::mojom::PageContentType>(
@@ -227,7 +249,89 @@ class PageContentFetcher {
   base::WeakPtrFactory<PageContentFetcher> weak_ptr_factory_{this};
 };
 
+#if BUILDFLAG(ENABLE_TEXT_RECOGNITION)
+void OnGetTextFromImage(
+    std::function<void(std::string, bool is_video)> callback_runner,
+    const std::vector<std::string>& strs) {
+  std::stringstream ss;
+  for (size_t i = 0; i < strs.size(); ++i) {
+    ss << strs[i];
+    if (i < strs.size() - 1) {
+      ss << "\n";
+    }
+  }
+  callback_runner(ss.str(), false);
+}
+
+#if BUILDFLAG(IS_WIN)
+void TextRecognizationSupported(
+    std::function<void(std::string, bool is_video)> callback_runner,
+    bool supported) {
+  // If supported, we will get the result via OnGetTextFromImage()
+  if (supported) {
+    return;
+  }
+  callback_runner("", false);
+}
+#endif
+
+void OnScreenshot(base::OnceCallback<void(std::string, bool is_video)> callback,
+                  const SkBitmap& image) {
+  // The way the text_recognition code is setup, both callbacks need to
+  // be bound to the callback, and only one of them will run.
+  // To avoid using std::move(callback) twice, we pass a shared pointer
+  // to the callback and an std::function instead.
+  auto shared_callback =
+      std::make_shared<base::OnceCallback<void(std::string, bool is_video)>>(
+          std::move(callback));
+  auto callback_runner = [shared_callback](std::string result,
+                                           bool is_video) mutable {
+    if (shared_callback && *shared_callback) {
+      std::move(*shared_callback).Run(std::move(result), is_video);
+      shared_callback.reset();
+    }
+  };
+#if BUILDFLAG(IS_MAC)
+  base::ThreadPool::PostTaskAndReplyWithResult(
+      FROM_HERE,
+      {base::MayBlock(), base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
+      base::BindOnce(&text_recognition::GetTextFromImage, image),
+      base::BindOnce(&OnGetTextFromImage, callback_runner));
+#endif
+#if BUILDFLAG(IS_WIN)
+
+  const std::string& locale = brave_l10n::GetDefaultLocaleString();
+  const std::string language_code = brave_l10n::GetISOLanguageCode(locale);
+  base::ThreadPool::CreateCOMSTATaskRunner({base::MayBlock()})
+      ->PostTaskAndReplyWithResult(
+          FROM_HERE,
+          base::BindOnce(&text_recognition::GetTextFromImage, language_code,
+                         image,
+                         base::BindPostTaskToCurrentDefault(base::BindOnce(
+                             &OnGetTextFromImage, callback_runner))),
+          base::BindOnce(&TextRecognizationSupported, callback_runner));
+#endif
+}
+#endif  // #if BUILDFLAG(ENABLE_TEXT_RECOGNITION)
+
 }  // namespace
+
+#if BUILDFLAG(ENABLE_TEXT_RECOGNITION)
+bool FetchPageContentViaTextExtraction(content::WebContents* web_contents,
+                                       FetchPageContentCallback callback) {
+  content::RenderWidgetHostView* view = web_contents->GetRenderWidgetHostView();
+  if (view) {
+    gfx::Size content_size = web_contents->GetSize();
+    content_size.set_height(content_size.height() * 4);
+    gfx::Rect capture_area(0, 0, content_size.width(), content_size.height());
+    view->CopyFromSurface(capture_area, content_size,
+                          base::BindOnce(&OnScreenshot, std::move(callback)));
+    return true;
+  }
+
+  return false;
+}
+#endif
 
 void FetchPageContent(content::WebContents* web_contents,
                       FetchPageContentCallback callback) {
@@ -243,6 +347,16 @@ void FetchPageContent(content::WebContents* web_contents,
     std::move(callback).Run("", false);
     return;
   }
+
+#if BUILDFLAG(ENABLE_TEXT_RECOGNITION)
+  auto host = web_contents->GetURL().host();
+  if (base::Contains(kScreenshotRetrievalHosts, host)) {
+    if (FetchPageContentViaTextExtraction(web_contents, std::move(callback))) {
+      // Callback already handled
+      return;
+    }
+  }
+#endif
 
   mojo::Remote<mojom::PageContentExtractor> extractor;
 
