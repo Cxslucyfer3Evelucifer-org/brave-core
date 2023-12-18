@@ -20,10 +20,25 @@ const SUGGESTION_STATUS_SHOW_BUTTON: mojom.SuggestionGenerationStatus[] = [
   mojom.SuggestionGenerationStatus.IsGenerating
 ]
 
-// @ts-expect-error
-const escapeHTMLPolicy = window.trustedTypes.createPolicy("sanitize-inner-html", {
-  createHTML: (toEscape: any) => toEscape
-})
+const buildHTML = (str: string) => {
+  const parts: any = []
+
+  for (const match of str.matchAll(/```(.*?)```|`(.*?)`|([^`]+)/gs)) {
+    if (match[0].substring(0,3).includes('```')) {
+      parts.push(<pre>{match[1].trim()}</pre>)
+      continue;
+    }
+
+    if (match[0].substring(0,1).includes('`')) {
+      parts.push(<code>{match[2]}</code>)
+      continue;
+    }
+
+    parts.push(match[0])
+  }
+
+  return parts
+}
 
 function ConversationList() {
   // Scroll the last conversation item in to view when entries are added.
@@ -108,9 +123,7 @@ function ConversationList() {
                 <div
                   className={styles.message}
                 >
-                  <div dangerouslySetInnerHTML={{ __html: escapeHTMLPolicy.createHTML(turn.text
-                      .replace(/```(.*?)```/gs, (match, p1) => `<pre>${p1}</pre>`)
-                      .replace(/`(.*?)`/gs, (match, p1) => `<code>${p1}</code>`)) }} />
+                  {buildHTML(turn.text).map((entry:any) => entry)}
                   {isLoading && <span className={styles.caret} />}
                   {showSiteTitle && <div className={styles.siteTitleContainer}><SiteTitle size="default" /></div>}
                 </div>

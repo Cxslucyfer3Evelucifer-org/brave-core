@@ -85,13 +85,18 @@
   white-space: pre-wrap;
   padding-top: 5px;
 
-  pre {
+  pre,
+  code {
     overflow: auto;
     background: var(--leo-color-page-background);
+    white-space: pre-line;
+    border: 1px solid var(--leo-color-divider-subtle);
+    padding: var(--leo-spacing-xl);
+    border-radius: 8px;
   }
 
   code {
-    background: var(--leo-color-page-background);
+    padding: var(--leo-spacing-s);
   }
 }
 
