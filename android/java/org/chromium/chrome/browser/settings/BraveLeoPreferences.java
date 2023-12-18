@@ -7,6 +7,7 @@ package org.chromium.chrome.browser.settings;
 
 import android.os.Bundle;
 
+import org.chromium.ai_chat.mojom.PremiumInfo;
 import org.chromium.ai_chat.mojom.PremiumStatus;
 import org.chromium.base.Log;
 import org.chromium.chrome.R;
@@ -44,7 +45,7 @@ public class BraveLeoPreferences extends BravePreferenceFragment {
     private void checkLinkPurchase() {
         BraveLeoCMHelper.getInstance(getProfile())
                 .getPremiumStatus(
-                        status -> {
+                        (PremiumStatus status, PremiumInfo premiumInfo) -> {
                             if (status == PremiumStatus.ACTIVE
                                     || !BraveLeoPrefUtils.getIsSubscriptionActive(getProfile())) {
                                 return;
