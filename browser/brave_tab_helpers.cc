@@ -62,7 +62,8 @@
 #include "brave/components/ai_chat/core/common/features.h"
 #endif
 
-#if BUILDFLAG(ENABLE_WIDEVINE)
+#if BUILDFLAG(ENABLE_WIDEVINE) && \
+    (!BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY))
 #include "brave/browser/brave_drm_tab_helper.h"
 #endif
 
