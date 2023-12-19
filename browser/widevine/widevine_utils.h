@@ -6,6 +6,8 @@
 #ifndef BRAVE_BROWSER_WIDEVINE_WIDEVINE_UTILS_H_
 #define BRAVE_BROWSER_WIDEVINE_WIDEVINE_UTILS_H_
 
+#include "build/build_config.h"
+
 namespace content {
 class WebContents;
 }  // namespace content
