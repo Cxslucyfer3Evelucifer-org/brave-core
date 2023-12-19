@@ -27,13 +27,14 @@
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "content/browser/media/cdm_registry_impl.h"
 #include "content/public/browser/browser_thread.h"
 #include "third_party/widevine/cdm/widevine_cdm_common.h"
 
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#include "content/browser/media/cdm_registry_impl.h"
+#endif
+
 using content::BrowserThread;
-using content::CdmInfo;
-using content::CdmRegistryImpl;
 
 namespace {
 
@@ -141,11 +142,16 @@ void RegisterWidevineLocalstatePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kWidevineEnabled, false);
 }
 
+// On Arm64 Linux (and other non-x86/non-x64 architectures), Widevine is not
+// publicly available. Users may obtain it themselves and place it into Brave's
+// installation directory. HasBundledWidevine() checks if that is the case:
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
 bool HasBundledWidevine() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  CdmRegistryImpl* cdm_registry = CdmRegistryImpl::GetInstance();
+  content::CdmRegistryImpl* cdm_registry =
+      content::CdmRegistryImpl::GetInstance();
   CHECK(cdm_registry);
-  const std::vector<CdmInfo>& cdms = cdm_registry->GetRegisteredCdms();
+  const std::vector<content::CdmInfo>& cdms = cdm_registry->GetRegisteredCdms();
   base::FilePath bundled_dir =
       base::PathService::CheckedGet(chrome::DIR_BUNDLED_WIDEVINE_CDM);
   for (auto it : cdms) {
@@ -155,6 +161,7 @@ bool HasBundledWidevine() {
   }
   return false;
 }
+#endif
 
 bool IsWidevineEnabled() {
   // N.B.: As of this writing, kWidevineEnabled is also queried in other places.
@@ -176,11 +183,13 @@ void MigrateWidevinePrefs(PrefService* prefs) {
   // need to try migration again and prefs from profiles are already cleared.
   if (local_state->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
     if (prefs->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
-      // N.B.: This is not actually a migration. But this point in the code is
-      // just too perfect to implement the following logic:
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+      // This is not actually a migration. But this point in the code is just
+      // too perfect to implement the following logic:
       if (HasBundledWidevine()) {
         local_state->SetDefaultPrefValue(kWidevineEnabled, base::Value(true));
       }
+#endif
     } else {
       local_state->SetBoolean(kWidevineEnabled,
                               prefs->GetBoolean(kWidevineEnabled));

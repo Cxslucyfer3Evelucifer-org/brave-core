@@ -190,9 +190,14 @@ using extensions::ChromeContentBrowserClientExtensionsPart;
 #endif
 #endif
 
-#if BUILDFLAG(ENABLE_WIDEVINE) && \
-    (!BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY))
+#if BUILDFLAG(ENABLE_WIDEVINE)
+// We only need the DRM Tab Helper when Widevine is available through component
+// updates. This is the case on x86 and x64 Linux. But on other architectures
+// such as Arm64, ENABLE_WIDEVINE is still set to let users supply Widevine
+// themselves. Only use the tab helper when it's actually required:
+#if !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY)
 #include "brave/browser/brave_drm_tab_helper.h"
+#endif
 #endif
 
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
@@ -561,8 +566,12 @@ void BraveContentBrowserClient::
     RegisterAssociatedInterfaceBindersForRenderFrameHost(
         content::RenderFrameHost& render_frame_host,                // NOLINT
         blink::AssociatedInterfaceRegistry& associated_registry) {  // NOLINT
-#if BUILDFLAG(ENABLE_WIDEVINE) && \
-    (!BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY))
+#if BUILDFLAG(ENABLE_WIDEVINE)
+// We only need the DRM Tab Helper when Widevine is available through component
+// updates. This is the case on x86 and x64 Linux. But on other architectures
+// such as Arm64, ENABLE_WIDEVINE is still set to let users supply Widevine
+// themselves. Only use the tab helper when it's actually required:
+#if !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY)
   associated_registry.AddInterface<
       brave_drm::mojom::BraveDRM>(base::BindRepeating(
       [](content::RenderFrameHost* render_frame_host,
@@ -570,6 +579,7 @@ void BraveContentBrowserClient::
         BraveDrmTabHelper::BindBraveDRM(std::move(receiver), render_frame_host);
       },
       &render_frame_host));
+#endif
 #endif  // BUILDFLAG(ENABLE_WIDEVINE)
 
   associated_registry.AddInterface<
