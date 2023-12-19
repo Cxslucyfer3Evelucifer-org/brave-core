@@ -6,7 +6,6 @@
 #include "brave/browser/widevine/widevine_utils.h"
 
 #include <string>
-#include <vector>
 
 #include "base/files/file_util.h"
 #include "base/path_service.h"
@@ -31,6 +30,7 @@
 #include "third_party/widevine/cdm/widevine_cdm_common.h"
 
 #if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#include <vector>
 #include "content/browser/media/cdm_registry_impl.h"
 #endif
 
