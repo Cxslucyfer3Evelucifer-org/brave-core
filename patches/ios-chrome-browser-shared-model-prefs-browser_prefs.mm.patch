@@ -1,5 +1,5 @@
 diff --git a/ios/chrome/browser/shared/model/prefs/browser_prefs.mm b/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
-index 802f388d1e95f68be335d386871a2576887b90c4..60ec641a649314757cb1d5ab0c385840bccdf1d9 100644
+index fef75e5f6cf1d373435cd5a551dcc2b52c89f988..88310bdf72d4424155d5c9eee28929f858597b6b 100644
 --- a/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
 +++ b/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
 @@ -438,6 +438,7 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
@@ -10,10 +10,10 @@ index 802f388d1e95f68be335d386871a2576887b90c4..60ec641a649314757cb1d5ab0c385840
  }
  
  void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
-@@ -676,6 +677,7 @@ void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
-   registry->RegisterTimePref(prefs::kNotificationsPromoLastShown, base::Time());
-   registry->RegisterIntegerPref(prefs::kNotificationsPromoTimesShown, 0);
+@@ -679,6 +680,7 @@ void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
    registry->RegisterIntegerPref(prefs::kNotificationsPromoTimesDismissed, 0);
+ 
+   registry->RegisterBooleanPref(prefs::kInsecureFormWarningsEnabled, true);
 +  BRAVE_REGISTER_BROWSER_STATE_PREFS
  }
  
