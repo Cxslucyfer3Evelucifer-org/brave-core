@@ -28,10 +28,13 @@ void RequestWidevinePermission(content::WebContents* web_contents,
                                bool for_restart);
 void RegisterWidevineLocalstatePrefs(PrefRegistrySimple* registry);
 void RegisterWidevineLocalstatePrefsForMigration(PrefRegistrySimple* registry);
-bool HasBundledWidevine();
 bool IsWidevineEnabled();
 void SetWidevineEnabled(bool opted_in);
 void MigrateWidevinePrefs(PrefService* prefs);
 void MigrateObsoleteWidevineLocalStatePrefs(PrefService* local_state);
+
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+bool HasBundledWidevine();
+#endif
 
 #endif  // BRAVE_BROWSER_WIDEVINE_WIDEVINE_UTILS_H_
