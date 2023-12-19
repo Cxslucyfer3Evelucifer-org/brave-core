@@ -14,6 +14,7 @@ import DataContext from '../../state/context'
 import ContextMenuAssistant from '../context_menu_assistant'
 import { getLocale } from '$web-common/locale'
 import SiteTitle from '../site_title'
+import CodeBlock from '../code_block'
 
 const SUGGESTION_STATUS_SHOW_BUTTON: mojom.SuggestionGenerationStatus[] = [
   mojom.SuggestionGenerationStatus.CanGenerate,
@@ -25,12 +26,12 @@ const buildHTML = (str: string) => {
 
   for (const match of str.matchAll(/```(.*?)```|`(.*?)`|([^`]+)/gs)) {
     if (match[0].substring(0,3).includes('```')) {
-      parts.push(<pre>{match[1].trim()}</pre>)
+      parts.push(<CodeBlock.Block code={match[1].trim()} />)
       continue;
     }
 
     if (match[0].substring(0,1).includes('`')) {
-      parts.push(<code>{match[2]}</code>)
+      parts.push(<CodeBlock.Inline code={match[2]}/>)
       continue;
     }
 
