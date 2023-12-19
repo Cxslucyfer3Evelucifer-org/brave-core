@@ -9,7 +9,8 @@ export const BLOWFISH_URL_WARNING_KINDS = [
   BraveWallet.BlowfishWarningKind.kBlocklistedDomainCrossOrigin,
   BraveWallet.BlowfishWarningKind.kCopyCatDomain,
   BraveWallet.BlowfishWarningKind.kNonAsciiUrl,
-  BraveWallet.BlowfishWarningKind.kSemiTrustedBlocklistDomain
+  BraveWallet.BlowfishWarningKind.kSemiTrustedBlocklistDomain,
+  BraveWallet.BlowfishWarningKind.kTrustedBlocklistDomain
 ] as const
 
 export const BLOWFISH_WARNING_KINDS = [
@@ -20,7 +21,6 @@ export const BLOWFISH_WARNING_KINDS = [
   BraveWallet.BlowfishWarningKind.kUnlimitedAllowanceToNfts,
   BraveWallet.BlowfishWarningKind.kBulkApprovalsRequest,
   BraveWallet.BlowfishWarningKind.kSetOwnerAuthority,
-  BraveWallet.BlowfishWarningKind.kTrustedBlocklistDomain,
   BraveWallet.BlowfishWarningKind.kDanglingApproval,
   BraveWallet.BlowfishWarningKind.kTradeForNothing,
   BraveWallet.BlowfishWarningKind.kPermitUnlimitedAllowance,
