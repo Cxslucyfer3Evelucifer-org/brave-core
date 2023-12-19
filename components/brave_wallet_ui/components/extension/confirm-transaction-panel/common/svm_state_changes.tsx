@@ -22,6 +22,7 @@ import {
 } from '../../../../common/slices/api.slice.extra'
 
 // components
+import { CopyTooltip } from '../../../shared/copy-tooltip/copy-tooltip'
 import {
   ChainInfo,
   InlineViewOnBlockExplorerIconButton
@@ -96,8 +97,15 @@ export const SOLTransfer = ({
 
   // render
   return (
-    <Column alignItems='flex-start' padding={0} margin={'0px 0px 8px 0px'}>
-      <Text textSize='12px' color={color.text.secondary}>
+    <Column
+      alignItems='flex-start'
+      padding={0}
+      margin={'0px 0px 8px 0px'}
+    >
+      <Text
+        textSize='12px'
+        color={color.text.secondary}
+      >
         {getLocale(isReceive ? 'braveWalletReceive' : 'braveWalletSend')}
       </Text>
       <Row
@@ -112,9 +120,16 @@ export const SOLTransfer = ({
             getLocale('braveWalletTokenIsVerified')
           }
         >
-          <AssetIconWithPlaceholder asset={asset} network={network} />
+          <AssetIconWithPlaceholder
+            asset={asset}
+            network={network}
+          />
         </IconsWrapper>
-        <Row alignItems='center' gap={'4px'} justifyContent='flex-start'>
+        <Row
+          alignItems='center'
+          gap={'4px'}
+          justifyContent='flex-start'
+        >
           <StateChangeText
             color={isReceive ? color.systemfeedback.successIcon : undefined}
           >
@@ -177,8 +192,15 @@ export const SPLTokenTransfer = ({
 
   // render
   return (
-    <Column alignItems='flex-start' padding={0} margin={'0px 0px 8px 0px'}>
-      <Text textSize='12px' color={color.text.secondary}>
+    <Column
+      alignItems='flex-start'
+      padding={0}
+      margin={'0px 0px 8px 0px'}
+    >
+      <Text
+        textSize='12px'
+        color={color.text.secondary}
+      >
         {getLocale(isReceive ? 'braveWalletReceive' : 'braveWalletSend')}
       </Text>
       <Row
@@ -204,7 +226,10 @@ export const SPLTokenTransfer = ({
               iconStyles={NFT_ICON_STYLE}
             />
           ) : (
-            <AssetIconWithPlaceholder asset={asset} network={network} />
+            <AssetIconWithPlaceholder
+              asset={asset}
+              network={network}
+            />
           )}
           {!isVerified && (
             <NetworkIconWrapper>
@@ -213,7 +238,11 @@ export const SPLTokenTransfer = ({
           )}
         </IconsWrapper>
 
-        <Row alignItems='center' gap={'4px'} justifyContent='flex-start'>
+        <Row
+          alignItems='center'
+          gap={'4px'}
+          justifyContent='flex-start'
+        >
           <StateChangeText
             color={isReceive ? color.systemfeedback.successIcon : undefined}
           >
@@ -238,6 +267,72 @@ export const SPLTokenTransfer = ({
   )
 }
 
+export const SPLTokenApproval = ({
+  network,
+  approval
+}: {
+  approval: BraveWallet.BlowfishSPLApprovalData
+  network: BlockchainInfo
+}): JSX.Element => {
+  // computed
+  const isNft =
+    approval.metaplexTokenStandard ===
+      BraveWallet.BlowfishMetaplexTokenStandardKind.kNonFungible ||
+    approval.metaplexTokenStandard ===
+      BraveWallet.BlowfishMetaplexTokenStandardKind.kNonFungibleEdition
+
+  // memos
+  const afterAmount = React.useMemo(() => {
+    return new Amount(approval.diff.digits.toString())
+      .divideByDecimals(approval.decimals)
+      .formatAsAsset(6, approval.symbol)
+  }, [approval])
+
+  // render
+  return (
+    <Column
+      margin={'0px 0px 6px 0px'}
+      alignItems='flex-start'
+      justifyContent='center'
+    >
+      <Row
+        gap={'4px'}
+        alignItems='center'
+        justifyContent='flex-start'
+      >
+        <StateChangeText>
+          <strong>{isNft ? approval.name : afterAmount}</strong>
+        </StateChangeText>
+      </Row>
+      <Row
+        alignItems='center'
+        justifyContent='flex-start'
+      >
+        <CopyTooltip
+          isAddress
+          text={approval.delegate}
+          tooltipText={approval.delegate}
+          position='left'
+          verticalPosition='below'
+        >
+          <Text textSize='11px'>
+            {getLocale('braveWalletSpenderAddress').replace(
+              '$1',
+              reduceAddress(approval.delegate)
+            )}
+          </Text>
+        </CopyTooltip>
+
+        <InlineViewOnBlockExplorerIconButton
+          address={approval.delegate}
+          network={network}
+          urlType={'address'}
+        />
+      </Row>
+    </Column>
+  )
+}
+
 const AddressChange = ({
   fromAddress,
   toAddress,
@@ -248,7 +343,11 @@ const AddressChange = ({
   network: ChainInfo
 }) => {
   return (
-    <Row alignItems='center' justifyContent='flex-start' padding={'8px 0px'}>
+    <Row
+      alignItems='center'
+      justifyContent='flex-start'
+      padding={'8px 0px'}
+    >
       <StateChangeText>
         <strong>
           {reduceAddress(fromAddress)}
@@ -298,8 +397,14 @@ export const SolStakingAuthChange = ({
       justifyContent='center'
     >
       {hasStakerChange ? (
-        <Column justifyContent='center' alignItems='flex-start'>
-          <Row alignItems='center' justifyContent='flex-start'>
+        <Column
+          justifyContent='center'
+          alignItems='flex-start'
+        >
+          <Row
+            alignItems='center'
+            justifyContent='flex-start'
+          >
             <StateChangeText>{getLocale('braveWalletStaker')}</StateChangeText>
           </Row>
           <AddressChange
@@ -311,8 +416,14 @@ export const SolStakingAuthChange = ({
       ) : null}
 
       {hasWithdrawerChange ? (
-        <Column justifyContent='center' alignItems='flex-start'>
-          <Row alignItems='center' justifyContent='flex-start'>
+        <Column
+          justifyContent='center'
+          alignItems='flex-start'
+        >
+          <Row
+            alignItems='center'
+            justifyContent='flex-start'
+          >
             <StateChangeText>
               {getLocale('braveWalletWithdrawer')}
             </StateChangeText>
