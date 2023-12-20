@@ -11,21 +11,8 @@ const { fallback, provideNodeGlobals } = require('../components/webpack/polyfill
 const buildConfigs = ['Component', 'Static', 'Debug', 'Release']
 const extraArchitectures = ['arm64', 'x86']
 
-function getBuildOuptutPathList(buildOutputRelativePath) {
-  return buildConfigs.flatMap((config) => [
-    path.resolve(__dirname, `../../out/${config}/${buildOutputRelativePath}`),
-    ...extraArchitectures.map((arch) =>
-      path.resolve(
-        __dirname,
-        `../../out/${config}_${arch}/${buildOutputRelativePath}`
-      )
-    )
-  ])
-}
+const genFolder = path.resolve(__dirname, `../../out/Component/gen`)
 
-const genFolder = getBuildOuptutPathList('gen')
-  .filter(a => fs.existsSync(a))
-  .sort((a, b) => fs.statSync(b).mtime - fs.statSync(a).mtime)[0]
 if (!genFolder) {
   throw new Error("Failed to find build output folder!")
 }
