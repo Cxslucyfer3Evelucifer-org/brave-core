@@ -8,12 +8,22 @@ import * as React from 'react'
 import styles from './style.module.scss'
 import Button from '@brave/leo/react/button'
 import Icon from '@brave/leo/react/icon'
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import cpp from 'react-syntax-highlighter/dist/esm/languages/hljs/cpp';
+import hljsStyle from 'react-syntax-highlighter/dist/esm/styles/hljs/ir-black';
 
-interface CodeBlockProps {
+SyntaxHighlighter.registerLanguage('cpp', cpp)
+SyntaxHighlighter.registerLanguage('javascript', cpp)
+
+interface CodeInlineProps {
   code: string
 }
+interface CodeBlockProps {
+  code: string
+  lang: string
+}
 
-export function Inline(props: CodeBlockProps) {
+export function Inline(props: CodeInlineProps) {
   return (
     <span className={styles.container}>
       <code>
@@ -36,7 +46,7 @@ function Block(props: CodeBlockProps) {
   return (
     <div className={styles.container}>
       <div className={styles.toolbar}>
-        <div />
+        <div>{props.lang}</div>
         <Button
           kind='plain-faint'
           onClick={handleCopy}
@@ -47,7 +57,13 @@ function Block(props: CodeBlockProps) {
           <div>Copy code</div>
         </Button>
       </div>
-      <pre>{props.code}</pre>
+      <SyntaxHighlighter
+        language={props.lang}
+        style={hljsStyle}
+        wrapLongLines
+      >
+        {props.code}
+      </SyntaxHighlighter>
     </div>
   )
 }

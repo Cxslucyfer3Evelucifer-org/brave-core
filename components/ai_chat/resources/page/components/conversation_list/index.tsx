@@ -24,14 +24,15 @@ const SUGGESTION_STATUS_SHOW_BUTTON: mojom.SuggestionGenerationStatus[] = [
 const buildHTML = (str: string) => {
   const parts: any = []
 
-  for (const match of str.matchAll(/```(.*?)```|`(.*?)`|([^`]+)/gs)) {
+  for (const match of str.matchAll(/```([^\n`]+)?\n?([\s\S]*?)```|`(.*?)`|([^`]+)/gs)) {
     if (match[0].substring(0,3).includes('```')) {
-      parts.push(<CodeBlock.Block code={match[1].trim()} />)
+      const lang = match[1]
+      parts.push(<CodeBlock.Block lang={lang} code={match[2].trim()} />)
       continue;
     }
 
     if (match[0].substring(0,1).includes('`')) {
-      parts.push(<CodeBlock.Inline code={match[2]}/>)
+      parts.push(<CodeBlock.Inline code={match[3]}/>)
       continue;
     }
 
