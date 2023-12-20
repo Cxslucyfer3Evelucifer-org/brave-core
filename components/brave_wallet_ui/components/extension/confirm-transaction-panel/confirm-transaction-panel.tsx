@@ -300,7 +300,7 @@ export const ConfirmTransactionPanel = ({
             maxWidth={isContract ? '90%' : 'unset'}
             width={'100%'}
             gap={'8px'}
-            wrap
+            $wrap={true}
           >
             <Tooltip
               text={fromAccount.address}
