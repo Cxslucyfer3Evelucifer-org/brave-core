@@ -16,9 +16,7 @@
   const gfx::VectorIcon& GetVectorTouchIcon() const;  \
   virtual void SetHighlight
 
-#define UpdateColorsAndInsets virtual UpdateColorsAndInsets
 #include "src/chrome/browser/ui/views/toolbar/toolbar_button.h"  // IWYU pragma: export
-#undef UpdateColorsAndInsets
 #undef SetHighlight
 #undef ToolbarButton
 
