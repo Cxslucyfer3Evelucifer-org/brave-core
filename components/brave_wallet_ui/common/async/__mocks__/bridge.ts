@@ -176,7 +176,7 @@ export class MockedWalletApiProxy {
     }
   }
 
-  mockQuote = {
+  mockZeroExQuote = {
     price: '1705.399509',
     guaranteedPrice: '',
     to: '',
@@ -201,7 +201,7 @@ export class MockedWalletApiProxy {
     }
   }
 
-  mockTransaction = {
+  mockZeroExTransaction = {
     allowanceTarget: '',
     price: '',
     guaranteedPrice: '',
@@ -410,35 +410,54 @@ export class MockedWalletApiProxy {
 
   swapService: Partial<InstanceType<typeof BraveWallet.SwapServiceInterface>> =
     {
-      getTransactionPayload: async ({
-        buyAmount,
-        buyToken,
-        sellAmount,
-        sellToken
-      }: BraveWallet.SwapParams): Promise<{
-        response: BraveWallet.SwapResponse
-        errorResponse: BraveWallet.SwapErrorResponse
+      getTransaction: async (
+        params: BraveWallet.SwapTransactionParamsUnion
+      ): Promise<{
+        response: BraveWallet.SwapTransactionUnion | null
+        error: BraveWallet.SwapErrorUnion | null
+        errorString: string
+      }> => {
+        const { zeroExTransactionParams } = params
+        if (!zeroExTransactionParams) {
+          return {
+            response: null,
+            error: null,
+            errorString: 'missing params'
+          }
+        }
+
+        const { fromToken, toToken, fromAmount, toAmount } =
+          zeroExTransactionParams
+
+        return {
+          error: null,
+          response: {
+            zeroExTransaction: {
+              ...this.mockZeroExQuote,
+              buyTokenAddress: toToken,
+              sellTokenAddress: fromToken,
+              buyAmount: toAmount || '',
+              sellAmount: fromAmount || '',
+              price: '1'
+            },
+            jupiterTransaction: undefined
+          },
+          errorString: ''
+        }
+      },
+
+      getQuote: async (
+        params: BraveWallet.SwapQuoteParams
+      ): Promise<{
+        response: BraveWallet.SwapQuoteUnion | null
+        error: BraveWallet.SwapErrorUnion | null
         errorString: string
       }> => ({
-        errorResponse: {
-          code: 0,
-          isInsufficientLiquidity: false,
-          reason: '',
-          validationErrors: []
-        },
         response: {
-          ...this.mockQuote,
-          buyTokenAddress: buyToken,
-          sellTokenAddress: sellToken,
-          buyAmount: buyAmount || '',
-          sellAmount: sellAmount || '',
-          price: '1'
+          zeroExQuote: this.mockZeroExQuote,
+          jupiterQuote: undefined
         },
-        errorString: ''
-      }),
-      getPriceQuote: async () => ({
-        response: this.mockTransaction,
-        errorResponse: null,
+        error: null,
         errorString: ''
       })
     }
@@ -500,6 +519,9 @@ export class MockedWalletApiProxy {
       return {
         success: validId
       }
+    },
+    unlock: async (password) => {
+      return { success: password === 'password' }
     }
   }
 
@@ -733,6 +755,19 @@ export class MockedWalletApiProxy {
         errorMessage: ''
       }
     },
+    // Allowances
+    getERC20TokenAllowance: async (
+      contract,
+      ownerAddress,
+      spenderAddress,
+      chainId
+    ) => {
+      return {
+        allowance: '1000000000000000000', // 1 unit
+        error: BraveWallet.ProviderError.kSuccess,
+        errorMessage: ''
+      }
+    },
     // NFT Metadata
     getERC721Metadata: async (contract, tokenId, chainId) => {
       const mockedMetadata =
@@ -812,24 +847,31 @@ export class MockedWalletApiProxy {
       }
     },
 
-    getEthTokenSymbol: async (contractAddress, chainId) => {
-      return {
-        error: 0,
-        errorMessage: '',
-        symbol:
-          mockErc20TokensList.find((t) => t.contractAddress === contractAddress)
-            ?.symbol || '???'
-      }
-    },
+    getEthTokenInfo: async (contractAddress, chainId) => {
+      const foundToken = mockErc20TokensList.find(
+        (t) => t.contractAddress === contractAddress
+      )
 
-    getEthTokenDecimals: async (contractAddress, chainId) => {
       return {
+        token: {
+          contractAddress,
+          chainId,
+          coin: BraveWallet.CoinType.ETH,
+          name: foundToken?.name || 'Mocked Token',
+          symbol: foundToken?.symbol || 'MTK',
+          decimals: foundToken?.decimals || 18,
+          coingeckoId: foundToken?.coingeckoId || 'mocked-token',
+          isErc20: true,
+          isErc721: false,
+          isErc1155: false,
+          isNft: false,
+          tokenId: '',
+          logo: '',
+          isSpam: false,
+          visible: false
+        },
         error: 0,
-        errorMessage: '',
-        decimals:
-          mockErc20TokensList
-            .find((t) => t.contractAddress === contractAddress)
-            ?.decimals.toString() || '18'
+        errorMessage: ''
       }
     }
   }
@@ -957,12 +999,12 @@ export class MockedWalletApiProxy {
     }
   }
 
-  setMockedQuote(newQuote: typeof this.mockQuote) {
-    this.mockQuote = newQuote
+  setMockedQuote(newQuote: typeof this.mockZeroExQuote) {
+    this.mockZeroExQuote = newQuote
   }
 
-  setMockedTransactionPayload(newTx: typeof this.mockQuote) {
-    this.mockTransaction = newTx
+  setMockedTransactionPayload(newTx: typeof this.mockZeroExQuote) {
+    this.mockZeroExTransaction = newTx
   }
 
   setMockedStore = (newStore: typeof this.store) => {

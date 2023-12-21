@@ -10,7 +10,6 @@ import {
 } from '../../components/desktop/popup-modals/add-account-modal/hardware-wallet-connect/types'
 import {
   BraveWallet,
-  GetBlockchainTokenInfoReturnInfo,
   SolanaSerializedTransactionParams
 } from '../../constants/types'
 import * as WalletActions from '../actions/wallet_actions'
@@ -51,29 +50,6 @@ import {
   stripERC20TokenImageURL
 } from '../../utils/string-utils'
 import { toTxDataUnion } from '../../utils/tx-utils'
-
-export const getERC20Allowance = (
-  contractAddress: string,
-  ownerAddress: string,
-  spenderAddress: string,
-  chainId: string
-): Promise<string> => {
-  return new Promise(async (resolve, reject) => {
-    const { jsonRpcService } = getAPIProxy()
-    const result = await jsonRpcService.getERC20TokenAllowance(
-      contractAddress,
-      ownerAddress,
-      spenderAddress,
-      chainId
-    )
-
-    if (result.error === BraveWallet.ProviderError.kSuccess) {
-      resolve(result.allowance)
-    } else {
-      reject(result.errorMessage)
-    }
-  })
-}
 
 export const onConnectHardwareWallet = (
   opts: HardwareWalletConnectOpts
@@ -151,38 +127,6 @@ export const onConnectHardwareWallet = (
 export async function isStrongPassword(value: string) {
   const apiProxy = getAPIProxy()
   return (await apiProxy.keyringService.isStrongPassword(value)).result
-}
-
-export async function getBlockchainTokenInfo(
-  contractAddress: string
-): Promise<GetBlockchainTokenInfoReturnInfo> {
-  const apiProxy = getAPIProxy()
-  return await apiProxy.assetRatioService.getTokenInfo(contractAddress)
-}
-
-export async function getSellAssetUrl(args: {
-  asset: BraveWallet.BlockchainToken
-  offRampProvider: BraveWallet.OffRampProvider
-  chainId: string
-  address: string
-  amount: string
-  currencyCode: string
-}) {
-  const { assetRatioService } = getAPIProxy()
-  const { url, error } = await assetRatioService.getSellUrl(
-    args.offRampProvider,
-    args.chainId,
-    args.address,
-    args.asset.symbol,
-    args.amount,
-    args.currencyCode
-  )
-
-  if (error) {
-    console.log(`Failed to get sell URL: ${error}`)
-  }
-
-  return url
 }
 
 export function refreshVisibleTokenInfo(

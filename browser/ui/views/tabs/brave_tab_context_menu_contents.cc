@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "base/functional/bind.h"
 #include "brave/browser/ui/browser_commands.h"
 #include "brave/browser/ui/tabs/brave_tab_menu_model.h"
 #include "brave/browser/ui/tabs/brave_tab_prefs.h"
@@ -47,7 +48,9 @@ BraveTabContextMenuContents::BraveTabContextMenuContents(
       TabRestoreServiceFactory::GetForProfile(browser_->profile());
   menu_runner_ = std::make_unique<views::MenuRunner>(
       model_.get(),
-      views::MenuRunner::HAS_MNEMONICS | views::MenuRunner::CONTEXT_MENU);
+      views::MenuRunner::HAS_MNEMONICS | views::MenuRunner::CONTEXT_MENU,
+      base::BindRepeating(&BraveTabContextMenuContents::OnMenuClosed,
+                          weak_ptr_.GetWeakPtr()));
 }
 
 BraveTabContextMenuContents::~BraveTabContextMenuContents() = default;
@@ -64,6 +67,10 @@ void BraveTabContextMenuContents::RunMenuAt(const gfx::Point& point,
 }
 
 bool BraveTabContextMenuContents::IsCommandIdChecked(int command_id) const {
+  if (!IsValidContextMenu()) {
+    return false;
+  }
+
   if (command_id == BraveTabMenuModel::CommandShowVerticalTabs) {
     return tabs::utils::ShouldShowVerticalTabs(browser_);
   }
@@ -72,6 +79,11 @@ bool BraveTabContextMenuContents::IsCommandIdChecked(int command_id) const {
 }
 
 bool BraveTabContextMenuContents::IsCommandIdEnabled(int command_id) const {
+  // This could be called after tab is closed.
+  if (!IsValidContextMenu()) {
+    return false;
+  }
+
   if (IsBraveCommandId(command_id))
     return IsBraveCommandIdEnabled(command_id);
 
@@ -80,6 +92,10 @@ bool BraveTabContextMenuContents::IsCommandIdEnabled(int command_id) const {
 }
 
 bool BraveTabContextMenuContents::IsCommandIdVisible(int command_id) const {
+  if (!IsValidContextMenu()) {
+    return false;
+  }
+
   if (command_id == BraveTabMenuModel::CommandShowVerticalTabs) {
     return tabs::utils::SupportsVerticalTabs(browser_);
   }
@@ -90,6 +106,10 @@ bool BraveTabContextMenuContents::IsCommandIdVisible(int command_id) const {
 bool BraveTabContextMenuContents::GetAcceleratorForCommandId(
     int command_id,
     ui::Accelerator* accelerator) const {
+  if (!IsValidContextMenu()) {
+    return false;
+  }
+
   if (IsBraveCommandId(command_id))
     return false;
 
@@ -103,6 +123,10 @@ bool BraveTabContextMenuContents::GetAcceleratorForCommandId(
 
 void BraveTabContextMenuContents::ExecuteCommand(int command_id,
                                                  int event_flags) {
+  if (!IsValidContextMenu()) {
+    return;
+  }
+
   if (IsBraveCommandId(command_id))
     return ExecuteBraveCommand(command_id);
 
@@ -114,6 +138,8 @@ void BraveTabContextMenuContents::ExecuteCommand(int command_id,
 
 bool BraveTabContextMenuContents::IsBraveCommandIdEnabled(
     int command_id) const {
+  CHECK(IsValidContextMenu());
+
   switch (command_id) {
     case BraveTabMenuModel::CommandRestoreTab:
       return restore_service_ && (!restore_service_->IsLoaded() ||
@@ -143,6 +169,8 @@ bool BraveTabContextMenuContents::IsBraveCommandIdEnabled(
 }
 
 void BraveTabContextMenuContents::ExecuteBraveCommand(int command_id) {
+  CHECK(IsValidContextMenu());
+
   switch (command_id) {
     case BraveTabMenuModel::CommandRestoreTab:
       chrome::RestoreTab(browser_);
@@ -180,4 +208,17 @@ void BraveTabContextMenuContents::ExecuteBraveCommand(int command_id) {
 bool BraveTabContextMenuContents::IsBraveCommandId(int command_id) const {
   return command_id > BraveTabMenuModel::CommandStart &&
          command_id < BraveTabMenuModel::CommandLast;
+}
+
+bool BraveTabContextMenuContents::IsValidContextMenu() const {
+  if (menu_closed_) {
+    return false;
+  }
+
+  return controller_->GetModelIndexOf(tab_).has_value() &&
+         controller_->model()->ContainsIndex(tab_index_);
+}
+
+void BraveTabContextMenuContents::OnMenuClosed() {
+  menu_closed_ = true;
 }

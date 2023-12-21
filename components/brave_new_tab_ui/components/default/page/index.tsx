@@ -315,12 +315,14 @@ function getBackground(p: HasImageProps) {
   }
 
   if (p.hasImage && p.imageSrc) {
+    // Note: We force percent encoding for ( and ) because Chromium seems to be
+    // ignoring the fact that the URL is quoted for these.
     return `linear-gradient(
       rgba(0, 0, 0, 0.8),
       rgba(0, 0, 0, 0) 35%,
       rgba(0, 0, 0, 0) 80%,
       rgba(0, 0, 0, 0.6) 100%
-    ), url("${p.imageSrc}")`
+    ), url("${p.imageSrc.replaceAll('(', '%28').replaceAll(')', '%29')}")`
   }
 
   return ''
@@ -377,8 +379,8 @@ export const App = styled('div') <AppProps & HasImageProps>`
       /* The FeedV2 has a semi-transparent white overlay. This is done via a
        * linear-gradient to not break any of the FeedV1 features. */
       --background-color: rgba(0,0,0, calc(0.65 * var(--ntp-extra-content-effect-multiplier)));
-      background: linear-gradient(var(--background-color), var(--background-color)), ${getBackground};
-        filter: blur(calc(var(--ntp-extra-content-effect-multiplier) * 32px));
+      background-image: linear-gradient(var(--background-color), var(--background-color)), ${getBackground};
+      filter: blur(calc(var(--ntp-extra-content-effect-multiplier) * 32px));
     }
   `}
 `

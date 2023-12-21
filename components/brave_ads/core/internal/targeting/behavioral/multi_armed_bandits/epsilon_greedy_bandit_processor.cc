@@ -83,7 +83,7 @@ void UpdateArm(const double reward, const std::string& segment) {
   }
 
   EpsilonGreedyBanditArmInfo arm = iter->second;
-  arm.pulls++;
+  ++arm.pulls;
   CHECK_NE(0, arm.pulls);
   arm.value = arm.value + (1.0 / arm.pulls * (reward - arm.value));
   iter->second = arm;
@@ -106,8 +106,6 @@ EpsilonGreedyBanditProcessor::~EpsilonGreedyBanditProcessor() {
 
 void EpsilonGreedyBanditProcessor::Process(
     const EpsilonGreedyBanditFeedbackInfo& feedback) const {
-  CHECK(mojom::IsKnownEnumValue(feedback.ad_event_type));
-
   if (!is_initialized_) {
     return;
   }

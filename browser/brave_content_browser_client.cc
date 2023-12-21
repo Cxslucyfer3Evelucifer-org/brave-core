@@ -154,6 +154,9 @@ using extensions::ChromeContentBrowserClientExtensionsPart;
 #include "brave/components/ai_chat/content/browser/ai_chat_throttle.h"
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
+#if BUILDFLAG(IS_ANDROID)
+#include "brave/components/ai_chat/core/browser/android/ai_chat_iap_subscription_android.h"
+#endif
 #endif
 
 #if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
@@ -235,7 +238,7 @@ using extensions::ChromeContentBrowserClientExtensionsPart;
 
 #if BUILDFLAG(ENABLE_PLAYLIST)
 #include "brave/browser/playlist/playlist_service_factory.h"
-#include "brave/components/playlist/browser/playlist_render_frame_browser_client.h"
+#include "brave/components/playlist/browser/playlist_media_handler.h"
 #include "brave/components/playlist/browser/playlist_service.h"
 #include "brave/components/playlist/common/mojom/playlist.mojom.h"
 #endif
@@ -253,6 +256,28 @@ bool HandleURLReverseOverrideRewrite(GURL* url,
     return true;
   }
 
+// For wallet pages, return true to update the displayed URL to react-routed
+// URL rather than showing brave://wallet for everything. This is needed
+// because of a side effect from rewriting brave:// to chrome:// in
+// HandleURLRewrite handler which makes brave://wallet the virtual URL here
+// unless we return true to trigger an update of virtual URL here to the routed
+// URL. For example, we will display brave://wallet/send instead of
+// brave://wallet with this. This is Android only because currently both
+// virtual and real URLs are chrome:// on desktop, so it doesn't have this
+// issue.
+#if BUILDFLAG(IS_ANDROID)
+  if ((url->SchemeIs(content::kBraveUIScheme) ||
+       url->SchemeIs(content::kChromeUIScheme)) &&
+      url->host() == kWalletPageHost) {
+    if (url->SchemeIs(content::kChromeUIScheme)) {
+      GURL::Replacements replacements;
+      replacements.SetSchemeStr(content::kBraveUIScheme);
+      *url = url->ReplaceComponents(replacements);
+    }
+    return true;
+  }
+#endif
+
   return false;
 }
 
@@ -261,6 +286,21 @@ bool HandleURLRewrite(GURL* url, content::BrowserContext* browser_context) {
                                                           browser_context)) {
     return true;
   }
+
+// For wallet pages, return true so we can handle it in the reverse handler.
+// Also update the real URL from brave:// to chrome://.
+#if BUILDFLAG(IS_ANDROID)
+  if ((url->SchemeIs(content::kBraveUIScheme) ||
+       url->SchemeIs(content::kChromeUIScheme)) &&
+      url->host() == kWalletPageHost) {
+    if (url->SchemeIs(content::kBraveUIScheme)) {
+      GURL::Replacements replacements;
+      replacements.SetSchemeStr(content::kChromeUIScheme);
+      *url = url->ReplaceComponents(replacements);
+    }
+    return true;
+  }
+#endif
 
   return false;
 }
@@ -284,10 +324,9 @@ void BindCosmeticFiltersResources(
 }
 
 #if BUILDFLAG(ENABLE_PLAYLIST)
-void BindPlaylistRenderFrameBrowserClient(
+void BindPlaylistMediaHandler(
     content::RenderFrameHost* const frame_host,
-    mojo::PendingReceiver<playlist::mojom::PlaylistRenderFrameBrowserClient>
-        receiver) {
+    mojo::PendingReceiver<playlist::mojom::PlaylistMediaHandler> receiver) {
   auto* playlist_service =
       playlist::PlaylistServiceFactory::GetForBrowserContext(
           frame_host->GetBrowserContext());
@@ -296,7 +335,7 @@ void BindPlaylistRenderFrameBrowserClient(
     return;
   }
   mojo::MakeSelfOwnedReceiver(
-      std::make_unique<playlist::PlaylistRenderFrameBrowserClient>(
+      std::make_unique<playlist::PlaylistMediaHandler>(
           frame_host->GetGlobalId(), playlist_service->GetWeakPtr()),
       std::move(receiver));
 }
@@ -448,6 +487,18 @@ void BindBraveSearchDefaultHost(
         std::move(receiver));
   }
 }
+
+#if BUILDFLAG(IS_ANDROID)
+void BindIAPSubscription(
+    content::RenderFrameHost* const frame_host,
+    mojo::PendingReceiver<ai_chat::mojom::IAPSubscription> receiver) {
+  auto* context = frame_host->GetBrowserContext();
+  auto* profile = Profile::FromBrowserContext(context);
+  mojo::MakeSelfOwnedReceiver(
+      std::make_unique<ai_chat::AIChatIAPSubscription>(profile->GetPrefs()),
+      std::move(receiver));
+}
+#endif
 
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
 void MaybeBindBraveVpnImpl(
@@ -743,6 +794,12 @@ void BraveContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RegisterWebUIControllerInterfaceBinder<ai_chat::mojom::PageHandler,
                                                     AIChatUI>(map);
   }
+#if BUILDFLAG(IS_ANDROID)
+  if (ai_chat::features::IsAIChatEnabled()) {
+    map->Add<ai_chat::mojom::IAPSubscription>(
+        base::BindRepeating(&BindIAPSubscription));
+  }
+#endif
 #endif
 
 // Brave News
@@ -762,8 +819,8 @@ void BraveContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
 #endif
 
 #if BUILDFLAG(ENABLE_PLAYLIST)
-  map->Add<playlist::mojom::PlaylistRenderFrameBrowserClient>(
-      base::BindRepeating(&BindPlaylistRenderFrameBrowserClient));
+  map->Add<playlist::mojom::PlaylistMediaHandler>(
+      base::BindRepeating(&BindPlaylistMediaHandler));
 #endif  // BUILDFLAG(ENABLE_PLAYLIST)
 }
 

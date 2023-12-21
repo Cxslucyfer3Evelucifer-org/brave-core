@@ -2,7 +2,11 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
-import { spacing } from '@brave/leo/tokens/css'
+import Flex from '$web-common/Flex'
+import { getLocale } from '$web-common/locale'
+import Button from '@brave/leo/react/button'
+import Icon from '@brave/leo/react/icon'
+import { radius, spacing } from '@brave/leo/tokens/css'
 import * as React from 'react'
 import styled from 'styled-components'
 import Feed from '../../../../brave_news/browser/resources/Feed'
@@ -10,8 +14,6 @@ import FeedNavigation from '../../../../brave_news/browser/resources/FeedNavigat
 import Variables from '../../../../brave_news/browser/resources/Variables'
 import { useBraveNews } from '../../../../brave_news/browser/resources/shared/Context'
 import { CLASSNAME_PAGE_STUCK } from '../page'
-import Button from '@brave/leo/react/button'
-import { getLocale } from '$web-common/locale';
 
 const Root = styled(Variables)`
   padding-top: ${spacing.xl};
@@ -37,8 +39,9 @@ const ButtonsContainer = styled.div`
   visibility: hidden;
 
   position: fixed;
-  bottom: ${spacing.xl};
-  right: ${spacing.xl};
+  bottom: ${spacing['5Xl']};
+  right: ${spacing['5Xl']};
+  border-radius: ${radius.m};
 
   opacity: calc((var(--ntp-scroll-percent) - 0.5) / 0.5);
 
@@ -48,10 +51,33 @@ const ButtonsContainer = styled.div`
 
   display: flex;
   gap: ${spacing.m};
+  padding: ${spacing.m};
+
+  background: var(--bn-glass-container);
+`
+
+const NewsButton = styled(Button)`
+  --leo-button-color: var(--bn-glass-50);
+  --leo-button-radius: ${radius.s};
+  --leo-button-padding: ${spacing.m};
+`
+
+const LoadNewContentButton = styled(Button)`
+  --leo-button-color: var(--bn-glass-10);
+
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: brightness(0.8) blur(32px);
+
+  position: fixed;
+  z-index: 1;
+  top: ${spacing['3Xl']};
+
+  flex-grow: 0;
 `
 
 export default function FeedV2() {
-  const { feedV2, setCustomizePage, refreshFeedV2 } = useBraveNews()
+  const { feedV2, setCustomizePage, refreshFeedV2, feedV2UpdatesAvailable } = useBraveNews()
 
   const ref = React.useRef<HTMLDivElement>()
 
@@ -79,14 +105,20 @@ export default function FeedV2() {
     <SidebarContainer>
       <FeedNavigation />
     </SidebarContainer>
-    <Feed feed={feedV2} />
+    <Flex align='center' direction='column' gap={spacing.l}>
+      {feedV2UpdatesAvailable && <LoadNewContentButton onClick={refreshFeedV2}>
+        {getLocale('braveNewsNewContentAvailable')}
+      </LoadNewContentButton>}
+      <Feed feed={feedV2} />
+    </Flex>
+
     <ButtonsContainer>
-      <Button kind='outline' onClick={() => setCustomizePage('news')}>
-        {getLocale('braveNewsCustomizeFeed')}
-      </Button>
-      <Button isLoading={!feedV2} kind='outline' onClick={() => {
+      <NewsButton fab kind='outline' onClick={() => setCustomizePage('news')} title={getLocale('braveNewsCustomizeFeed')}>
+        <Icon name="settings" />
+      </NewsButton>
+      <NewsButton fab isLoading={!feedV2} kind='outline' title={getLocale('braveNewsRefreshFeed')} onClick={() => {
         refreshFeedV2()
-      }}>{getLocale('braveNewsRefreshFeed')}</Button>
+      }}><Icon name="refresh" /></NewsButton>
     </ButtonsContainer>
   </Root>
 }

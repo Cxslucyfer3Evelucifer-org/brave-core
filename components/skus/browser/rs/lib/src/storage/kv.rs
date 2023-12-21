@@ -286,6 +286,7 @@ where
     async fn upsert_time_limited_v2_item_creds(
         &self,
         item_id: &str,
+        request_id: &str,
         creds: Vec<Token>,
     ) -> Result<(), InternalError> {
         let mut store = self.get_store()?;
@@ -298,8 +299,9 @@ where
         if let Some(credentials) = state.credentials.as_mut() {
             // check and see if we already have this item initialized
             if let Some(item_credentials) = credentials.items.get_mut(item_id) {
-                // don't overwrite the existing unblinded_creds, we just want to add the new blinded
-                // tokens to the item_credentials.creds for signing request
+                // don't overwrite the existing unblinded_creds, we just want to add the new
+                // blinded tokens to the item_credentials.creds for signing
+                // request
                 if let Credentials::TimeLimitedV2(item_credentials) = item_credentials {
                     item_credentials.creds = creds;
                     // update state to generated credentials
@@ -311,6 +313,7 @@ where
                 let tlv2_vec = Vec::new();
                 let tlv2_creds = Credentials::TimeLimitedV2(TimeLimitedV2Credentials {
                     item_id: item_id.to_string(),
+                    request_id: Some(request_id.to_string()),
                     creds,
                     unblinded_creds: Some(tlv2_vec),
                     state: CredentialState::GeneratedCredentials,

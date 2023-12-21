@@ -5,6 +5,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import getBraveNewsController, { FeedV2, FeedV2Type } from "./api";
+import { addFeedListener } from "./feedListener";
 
 export type FeedView = 'all' | 'following' | `publishers/${string}` | `channels/${string}`
 
@@ -20,7 +21,11 @@ const feedTypeToFeedView = (type: FeedV2Type | undefined): FeedView => {
 const FEED_KEY = 'feedV2'
 const localCache: { [feedView: string]: FeedV2 } = {}
 const saveFeed = (feed?: FeedV2) => {
-  if (!feed) return
+  if (!feed || !feed.items.length) {
+    sessionStorage.removeItem(FEED_KEY)
+    localStorage.removeItem(FEED_KEY)
+    return
+  }
 
   localCache[feedTypeToFeedView(feed.type)] = feed
 
@@ -28,8 +33,18 @@ const saveFeed = (feed?: FeedV2) => {
   const data = JSON.stringify(feed, (_, value) => typeof value === "bigint"
     ? value.toString()
     : value);
-  sessionStorage.setItem(FEED_KEY, data)
-  localStorage.setItem(FEED_KEY, data)
+
+  try {
+    sessionStorage.setItem(FEED_KEY, data)
+  } catch (err) {
+    console.log(err)
+  }
+
+  try {
+    localStorage.setItem(FEED_KEY, data)
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 const maybeLoadFeed = (view?: FeedView) => {
@@ -84,11 +99,51 @@ const fetchFeed = (feedView: FeedView) => {
   })
 }
 
-export const useFeedV2 = () => {
+// Clear out of date caches when the feed receives new data.
+addFeedListener(latestHash => {
+  // Delete everything in the localCache which wasn't generated from the latest
+  // data - the last visited feed is stored in under |FEED_KEY| so clicking an
+  // article and coming back will still work.
+  for (const key in localCache) {
+    if (localCache[key].sourceHash === latestHash) continue
+    delete localCache[key]
+  }
+
+  // If what's in localStorage isn't from the latest data, make sure we remove
+  // it. Without the eslint-disable-next-line comment the below will fail on iOS
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const localStorageData = JSON.parse(localStorage.getItem(FEED_KEY)!) as FeedV2 | null
+  if (localStorageData?.sourceHash !== latestHash) {
+    localStorage.removeItem(FEED_KEY)
+  }
+})
+
+export const useFeedV2 = (enabled: boolean) => {
   const [feedV2, setFeedV2] = useState<FeedV2 | undefined>(maybeLoadFeed())
   const [feedView, setFeedView] = useState<FeedView>(feedTypeToFeedView(feedV2?.type))
+  const [hash, setHash] = useState<string>()
+
+  // Add a listener for the latest hash if Brave News is enabled. Note: We need
+  // to re-add the listener when the enabled state changes because the backing
+  // FeedV2Builder is created/destroyed.
+  useEffect(() => {
+    if (!enabled) return
+
+    let cancelled = false
+    // Note: A new feed listener will be notified with the latest hash.
+    addFeedListener(newHash => {
+      if (cancelled) return
+      setHash(newHash)
+    })
+
+    return () => { cancelled = true }
+  }, [enabled])
 
   useEffect(() => {
+    if (!enabled) return
+
+    setFeedV2(undefined)
+
     const cachedFeed = maybeLoadFeed(feedView)
     if (cachedFeed) {
       setFeedV2(cachedFeed)
@@ -101,7 +156,7 @@ export const useFeedV2 = () => {
       setFeedV2(feed)
     })
     return () => { cancelled = true }
-  }, [feedView])
+  }, [feedView, enabled])
 
   const refresh = useCallback(() => {
     // Set the feed to undefined - this will trigger the loading indicator.
@@ -110,10 +165,14 @@ export const useFeedV2 = () => {
     fetchFeed(feedView).then(setFeedV2)
   }, [feedView])
 
+  // Updates are available if we've been told the latest hash, we have a feed
+  // and the hashes don't match.
+  const updatesAvailable = !!(hash && feedV2 && hash !== feedV2.sourceHash)
   return {
     feedV2,
     feedView,
     setFeedView,
-    refresh
+    refresh,
+    updatesAvailable
   }
 }

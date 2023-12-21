@@ -39,7 +39,12 @@ const BatAdLabel = styled.a`
 `
 
 const CtaButton = styled(Button)`
+  --leo-button-color: var(--bn-glass-container);
   align-self: flex-start;
+`
+
+const AdImage = styled(LargeImage)`
+  height: unset;
 `
 
 export const useVisibleFor = (callback: () => void, timeout: number) => {
@@ -106,7 +111,7 @@ export default function Advert(props: Props) {
   }
 
   return <Container ref={setAdEl} onClick={onDisplayAdVisited}>
-    <LargeImage src={imageUrl} />
+    <AdImage src={imageUrl} />
     <MetaInfoContainer>
       <BatAdLabel onClick={e => e.stopPropagation()} href="brave://rewards">{getLocale('braveNewsAdvertBadge')}</BatAdLabel>
       •
@@ -121,6 +126,6 @@ export default function Advert(props: Props) {
         {advert.title}
       </SecureLink>
     </Title>
-    <CtaButton kind='plain-faint'>{advert.ctaText}</CtaButton>
+    <CtaButton kind='filled'>{advert.ctaText}</CtaButton>
   </Container>
 }

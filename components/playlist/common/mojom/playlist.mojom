@@ -184,12 +184,15 @@ interface PlaylistServiceObserver {
       array<PlaylistItem> items);
 };
 
+
 interface PlaylistStreamingObserver {
   OnResponseStarted(string url, int64 content_length);
   OnDataReceived(array<uint8> data_received);
   OnDataCompleted();
 };
 
-interface PlaylistRenderFrameBrowserClient {
+// Interface that is used to notify that found media from renderer process to 
+// browser process.
+interface PlaylistMediaHandler {
   OnMediaUpdatedFromRenderFrame();
 };

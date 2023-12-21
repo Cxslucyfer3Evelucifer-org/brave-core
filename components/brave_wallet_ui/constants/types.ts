@@ -198,7 +198,6 @@ export interface WalletState {
   isZCashEnabled: boolean
   isWalletCreated: boolean
   isWalletLocked: boolean
-  hasIncorrectPassword: boolean
   userVisibleTokensInfo: BraveWallet.BlockchainToken[]
   fullTokenList: BraveWallet.BlockchainToken[]
   selectedPortfolioTimeline: BraveWallet.AssetPriceTimeframe
@@ -258,7 +257,6 @@ export interface PageState {
   hasInitialized: boolean
   showRecoveryPhrase: boolean
   selectedTimeline: BraveWallet.AssetPriceTimeframe
-  selectedAsset: BraveWallet.BlockchainToken | undefined
   isFetchingNFTMetadata: boolean
   nftMetadata: NFTMetadataReturnType | undefined
   nftMetadataError: string | undefined
@@ -458,10 +456,6 @@ export type TransactionInfo =
 
 export type GetUnstoppableDomainsWalletAddrReturnInfo =
   BraveWallet.JsonRpcService_UnstoppableDomainsGetWalletAddr_ResponseParams
-
-export interface GetBlockchainTokenInfoReturnInfo {
-  token: BraveWallet.BlockchainToken | null
-}
 
 export type GetIsStrongPassswordReturnInfo =
   BraveWallet.KeyringService_IsStrongPassword_ResponseParams
@@ -1045,7 +1039,6 @@ export const ZCashNetworkLocaleMapping = {
 export type GasFeeOption = {
   id: string
   name: string
-  icon: string
 }
 
 export type GasEstimate = {

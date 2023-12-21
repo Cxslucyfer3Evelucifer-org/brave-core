@@ -6,6 +6,7 @@
 #include "brave/components/brave_ads/core/internal/deprecated/client/client_state_manager.h"
 
 #include <utility>
+#include <vector>
 
 #include "base/check.h"
 #include "base/debug/dump_without_crashing.h"
@@ -26,7 +27,7 @@ namespace brave_ads {
 
 namespace {
 
-constexpr size_t kMaximumEntriesPerSegmentInPurchaseIntentSignalHistory = 100;
+constexpr size_t kMaximumPurchaseIntentSignalHistoryEntriesPerSegment = 100;
 
 FilteredAdvertiserList::iterator FindFilteredAdvertiser(
     const std::string& advertiser_id,
@@ -108,13 +109,10 @@ void ClientStateManager::AppendHistory(const HistoryItemInfo& history_item) {
 
   const base::Time distant_past = base::Time::Now() - kHistoryTimeWindow.Get();
 
-  const auto iter =
-      std::remove_if(client_.history_items.begin(), client_.history_items.end(),
-                     [distant_past](const HistoryItemInfo& history_item) {
-                       return history_item.created_at < distant_past;
-                     });
-
-  client_.history_items.erase(iter, client_.history_items.cend());
+  base::EraseIf(client_.history_items,
+                [distant_past](const HistoryItemInfo& history_item) {
+                  return history_item.created_at < distant_past;
+                });
 
   SaveState();
 #endif
@@ -139,7 +137,7 @@ void ClientStateManager::AppendToPurchaseIntentSignalHistoryForSegment(
   client_.purchase_intent_signal_history.at(segment).push_back(history);
 
   if (client_.purchase_intent_signal_history.at(segment).size() >
-      kMaximumEntriesPerSegmentInPurchaseIntentSignalHistory) {
+      kMaximumPurchaseIntentSignalHistoryEntriesPerSegment) {
     client_.purchase_intent_signal_history.at(segment).pop_back();
   }
 
@@ -346,11 +344,11 @@ bool ClientStateManager::ToggleMarkAdAsInappropriate(
         client_.ad_preferences.flagged_ads.end());
   }
 
-  auto iter = base::ranges::find_if(
+  const auto iter = base::ranges::find_if(
       client_.history_items, [&ad_content](const HistoryItemInfo& item) {
         return item.ad_content.creative_set_id == ad_content.creative_set_id;
       });
-  if (iter != client_.history_items.end()) {
+  if (iter != client_.history_items.cend()) {
     iter->ad_content.is_flagged = is_flagged;
   }
 
