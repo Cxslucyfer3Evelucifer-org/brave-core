@@ -110,7 +110,6 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs) {
   profile_prefs->ClearPref(kBraveSearchVisitCount);
 #endif
 
-  brave_wallet::KeyringService::MigrateObsoleteProfilePrefs(profile_prefs);
   brave_wallet::MigrateObsoleteProfilePrefs(profile_prefs);
 
   // Added 05/2021
