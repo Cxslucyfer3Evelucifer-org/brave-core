@@ -107,20 +107,20 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
 
             if (BraveVpnPrefUtils.isSubscriptionPurchase()) {
                 String serverLocation =
-                        BraveVpnUtils.countryCodeToEmoji(BraveVpnPrefUtils.getServerRegion())
-                                + " "
-                                + mContext.getString(R.string.vpn_location);
-                MenuItem vpnServerLocation =
-                        menu.add(Menu.NONE, R.id.vpn_location_id, 0, R.string.vpn_location);
-                vpnServerLocation.setTitle(serverLocation);
-                if (shouldShowIconBeforeItem()) {
-                    vpnServerLocation.setIcon(
-                            AppCompatResources.getDrawable(mContext, R.drawable.ic_vpn));
-                }
+                        " "
+                                + BraveVpnUtils.countryCodeToEmoji("CA")
+                                + "   "
+                                + BraveVpnPrefUtils.getServerRegion();
+
+                SubMenu vpnLocationSubMenu =
+                        menu.findItem(R.id.request_vpn_location_row_menu_id).getSubMenu();
+                MenuItem vpnLocationSubMenuItem =
+                        vpnLocationSubMenu.findItem(R.id.request_vpn_location_id);
+                vpnLocationSubMenuItem.setTitle(serverLocation);
             }
         } else {
             menu.findItem(R.id.request_brave_vpn_row_menu_id).setVisible(false);
-            menu.findItem(R.id.vpn_location_id).setVisible(false);
+            menu.findItem(R.id.request_vpn_location_id).setVisible(false);
         }
 
         // Brave's items are only visible for page menu.
@@ -275,7 +275,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         mMenu.removeItem(R.id.brave_speedreader_id);
         mMenu.removeItem(R.id.exit_id);
         mMenu.removeItem(R.id.request_brave_vpn_row_menu_id);
-        mMenu.removeItem(R.id.vpn_location_id);
+        mMenu.removeItem(R.id.request_vpn_location_id);
     }
 
     @Override

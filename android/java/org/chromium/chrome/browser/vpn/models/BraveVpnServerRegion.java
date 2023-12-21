@@ -49,17 +49,18 @@ public class BraveVpnServerRegion implements Parcelable {
         mNamePretty = in.readString();
     }
 
-    public static final Creator<BraveVpnServerRegion> CREATOR = new Creator<BraveVpnServerRegion>() {
-        @Override
-        public BraveVpnServerRegion createFromParcel(Parcel in) {
-            return new BraveVpnServerRegion(in);
-        }
+    public static final Creator<BraveVpnServerRegion> CREATOR =
+            new Creator<BraveVpnServerRegion>() {
+                @Override
+                public BraveVpnServerRegion createFromParcel(Parcel in) {
+                    return new BraveVpnServerRegion(in);
+                }
 
-        @Override
-        public BraveVpnServerRegion[] newArray(int size) {
-            return new BraveVpnServerRegion[size];
-        }
-    };
+                @Override
+                public BraveVpnServerRegion[] newArray(int size) {
+                    return new BraveVpnServerRegion[size];
+                }
+            };
 
     @Override
     public int describeContents() {

@@ -18,14 +18,15 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.chromium.base.Log;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.vpn.BraveVpnNativeWorker;
 import org.chromium.chrome.browser.vpn.adapters.BraveVpnServerSelectionAdapter;
+import org.chromium.chrome.browser.vpn.models.BraveVpnPrefModel;
 import org.chromium.chrome.browser.vpn.models.BraveVpnServerRegion;
 import org.chromium.chrome.browser.vpn.utils.BraveVpnPrefUtils;
 import org.chromium.chrome.browser.vpn.utils.BraveVpnUtils;
 import org.chromium.ui.widget.Toast;
-import org.chromium.chrome.browser.vpn.models.BraveVpnPrefModel;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -141,6 +142,7 @@ public class VpnServerSelectionActivity extends BraveVpnParentActivity {
 
     @Override
     public void onGetAllServerRegions(String jsonResponse, boolean isSuccess) {
+        Log.e("VPN", "onGetAllServerRegions : " + jsonResponse);
         if (isSuccess) {
             List<BraveVpnServerRegion> braveVpnServerRegions =
                     BraveVpnUtils.getServerLocations(jsonResponse);
@@ -196,13 +198,15 @@ public class VpnServerSelectionActivity extends BraveVpnParentActivity {
                         BraveVpnUtils.selectedServerRegion = braveVpnServerRegion.getName();
                         // BraveVpnUtils.mIsServerLocationChanged = true;
                         // onBackPressed();
-                        BraveVpnUtils.showProgressDialog(VpnServerSelectionActivity.this, getResources().getString(R.string.vpn_connect_text));
-                            if (BraveVpnNativeWorker.getInstance().isPurchasedUser()) {
-                                mBraveVpnPrefModel = new BraveVpnPrefModel();
-                                BraveVpnNativeWorker.getInstance().getSubscriberCredentialV12();
-                            } else {
-                                verifySubscription();
-                            }
+                        BraveVpnUtils.showProgressDialog(
+                                VpnServerSelectionActivity.this,
+                                getResources().getString(R.string.vpn_connect_text));
+                        if (BraveVpnNativeWorker.getInstance().isPurchasedUser()) {
+                            mBraveVpnPrefModel = new BraveVpnPrefModel();
+                            BraveVpnNativeWorker.getInstance().getSubscriberCredentialV12();
+                        } else {
+                            verifySubscription();
+                        }
                     }
                 }
             };

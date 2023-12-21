@@ -84,6 +84,8 @@ public class BraveVpnApiResponseUtils {
                         : serverRegion;
             }
 
+            Log.e("VPN", "region : " + region);
+
             BraveVpnNativeWorker.getInstance().getHostnamesForRegion(region);
             braveVpnPrefModel.setServerRegion(region);
         } else {
