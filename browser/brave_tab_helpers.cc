@@ -64,10 +64,10 @@
 
 #if BUILDFLAG(ENABLE_WIDEVINE)
 // We only need the DRM Tab Helper when Widevine is available through component
-// updates. This is the case on x86 and x64 Linux. But on other architectures
-// such as Arm64, ENABLE_WIDEVINE is still set to let users supply Widevine
-// themselves. Only use the tab helper when it's actually required:
-#if !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY)
+// updates. This is the case on x64 Linux. On other architectures such as Arm64,
+// ENABLE_WIDEVINE is still set to let users supply Widevine themselves.
+// Only use the DRM Tab Helper when it is actually needed:
+#if !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_64)
 #include "brave/browser/brave_drm_tab_helper.h"
 #endif
 #endif
@@ -154,10 +154,10 @@ void AttachTabHelpers(content::WebContents* web_contents) {
 
 #if BUILDFLAG(ENABLE_WIDEVINE)
 // We only need the DRM Tab Helper when Widevine is available through component
-// updates. This is the case on x86 and x64 Linux. But on other architectures
-// such as Arm64, ENABLE_WIDEVINE is still set to let users supply Widevine
-// themselves. Only use the tab helper when it's actually required:
-#if !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY)
+// updates. This is the case on x64 Linux. On other architectures such as Arm64,
+// ENABLE_WIDEVINE is still set to let users supply Widevine themselves.
+// Only use the DRM Tab Helper when it is actually needed:
+#if !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_64)
   BraveDrmTabHelper::CreateForWebContents(web_contents);
 #endif
 #endif  // BUILDFLAG(ENABLE_WIDEVINE)

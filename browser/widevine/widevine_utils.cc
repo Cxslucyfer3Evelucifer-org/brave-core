@@ -29,7 +29,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "third_party/widevine/cdm/widevine_cdm_common.h"
 
-#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_64)
 #include <vector>
 #include "content/browser/media/cdm_registry_impl.h"
 #endif
@@ -142,10 +142,10 @@ void RegisterWidevineLocalstatePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kWidevineEnabled, false);
 }
 
-// On Arm64 Linux (and other non-x86/non-x64 architectures), Widevine is not
-// publicly available. Users may obtain it themselves and place it into Brave's
-// installation directory. HasBundledWidevine() checks if that is the case:
-#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+// On Arm64 Linux (and other non-x64 architectures), Widevine is not publicly
+// available. Users may obtain it themselves and place it into Brave's
+// installation directory. HasBundledWidevine() checks if this has happened:
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_64)
 bool HasBundledWidevine() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   content::CdmRegistryImpl* cdm_registry =
@@ -183,7 +183,7 @@ void MigrateWidevinePrefs(PrefService* prefs) {
   // need to try migration again and prefs from profiles are already cleared.
   if (local_state->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
     if (prefs->FindPreference(kWidevineEnabled)->IsDefaultValue()) {
-#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_64)
       // This is not actually a migration. But this point in the code is just
       // too perfect to implement the following logic:
       if (HasBundledWidevine()) {

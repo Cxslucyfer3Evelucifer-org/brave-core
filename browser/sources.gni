@@ -398,11 +398,11 @@ if (enable_brave_wayback_machine) {
 
 if (enable_widevine &&
     # We only need the DRM Tab Helper when Widevine is available through
-    # component updates. This is the case on x86 and x64 Linux. But on other
-    # architectures such as Arm64, enable_widevine is still set to let users
-    # supply Widevine themselves. Only use the tab helper when it's actually
-    # required:
-    (target_os != "linux" || target_cpu == "x86" || target_cpu == "x64")) {
+    # component updates. This is the case on x64 Linux. On other architectures
+    # such as Arm64, enable_widevine is still set to let users supply Widevine
+    # themselves.
+    # Only use the tab helper when it is actually needed:
+    (target_os != "linux" || target_cpu == "x64")) {
   brave_chrome_browser_sources += [
     "//brave/browser/brave_drm_tab_helper.cc",
     "//brave/browser/brave_drm_tab_helper.h",

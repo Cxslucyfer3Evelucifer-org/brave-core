@@ -35,7 +35,7 @@ void SetWidevineEnabled(bool opted_in);
 void MigrateWidevinePrefs(PrefService* prefs);
 void MigrateObsoleteWidevineLocalStatePrefs(PrefService* local_state);
 
-#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_64)
 bool HasBundledWidevine();
 #endif
 
