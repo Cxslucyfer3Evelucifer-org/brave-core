@@ -1,8 +1,8 @@
 diff --git a/chrome/BUILD.gn b/chrome/BUILD.gn
-index 3f4b33bcfaa272ed32c4e8903041549dae318146..33fc258afe2e2306219d157f79173e466ba80f8d 100644
+index 91c29a96d2d97dfe916e29c14a3daa154b02f97c..d14e8b8d1d69887ef2b8dffba35d35a4c35e45ae 100644
 --- a/chrome/BUILD.gn
 +++ b/chrome/BUILD.gn
-@@ -199,6 +199,7 @@ if (!is_android && !is_mac) {
+@@ -199,6 +199,7 @@ if (!is_android && !is_mac && !is_fuchsia) {
            "common/crash_keys.cc",
            "common/crash_keys.h",
          ]

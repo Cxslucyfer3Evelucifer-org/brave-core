@@ -1,8 +1,8 @@
 diff --git a/base/BUILD.gn b/base/BUILD.gn
-index e54d9ff43f3ab09e007fea77344482f9884ce404..fc4f05551692c65d3abbf98e1cb9d6c0be9ccade 100644
+index 8bd6530db838c9e44cbf04a2db7b59c9a435654f..327d2b1bffdb597e5772ffa49614cc645767da3d 100644
 --- a/base/BUILD.gn
 +++ b/base/BUILD.gn
-@@ -4455,6 +4455,7 @@ if (is_android) {
+@@ -4461,6 +4461,7 @@ if (is_android) {
        "android/java/src/org/chromium/base/task/ThreadPoolTaskExecutor.java",
        "android/java/src/org/chromium/base/task/UiThreadTaskExecutor.java",
      ]
@@ -10,7 +10,7 @@ index e54d9ff43f3ab09e007fea77344482f9884ce404..fc4f05551692c65d3abbf98e1cb9d6c0
  
      if (use_clang_profiling) {
        sources += [
-@@ -4493,6 +4494,7 @@ if (is_android) {
+@@ -4499,6 +4500,7 @@ if (is_android) {
        "android/java/src/org/chromium/base/shared_preferences/SharedPreferencesManager.java",
        "android/java/src/org/chromium/base/shared_preferences/StrictPreferenceKeyChecker.java",
      ]
