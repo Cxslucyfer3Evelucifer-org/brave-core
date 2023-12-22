@@ -143,7 +143,9 @@ import org.chromium.url.mojom.Url;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -163,6 +165,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     private static final int URL_FOCUS_TOOLBAR_BUTTONS_TRANSLATION_X_DP = 10;
 
     private static final int PLAYLIST_MEDIA_COUNT_LIMIT = 3;
+
+    private static final int DAYS_7 = 7;
 
     private PlaylistServiceObserverImpl mPlaylistServiceObserver;
 
@@ -1200,7 +1204,12 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         return PackageUtils.isFirstInstall(getContext()) && mBraveRewardsNativeWorker != null
                 && !mBraveRewardsNativeWorker.isRewardsEnabled()
                 && mBraveRewardsNativeWorker.IsSupported()
-                && !OnboardingPrefManager.getInstance().isOnboardingShown();
+                && !OnboardingPrefManager.getInstance().isOnboardingShown()
+                && (BraveRewardsHelper.getRewardsOnboardingIconInvisibleTiming() == 0
+                        || (BraveRewardsHelper.getRewardsOnboardingIconInvisibleTiming() > 0
+                                && System.currentTimeMillis()
+                                        <= BraveRewardsHelper
+                                                   .getRewardsOnboardingIconInvisibleTiming()));
     }
 
     private void showShieldsMenu(View mBraveShieldsButton) {
@@ -1498,8 +1507,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         }
 
         if (System.currentTimeMillis() > BraveRewardsHelper.getRewardsOnboardingIconTiming()) {
-            updateNotificationBadgeForNewInstall();
-
             if (checkForRewardsOnboarding()) {
                 if (mBraveRewardsOnboardingIcon != null) {
                     mBraveRewardsOnboardingIcon.setVisibility(View.VISIBLE);
@@ -1507,23 +1514,17 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 if (mBraveRewardsNotificationsCount != null) {
                     mBraveRewardsNotificationsCount.setVisibility(View.GONE);
                 }
+
+                if (!BraveRewardsHelper.hasRewardsOnboardingIconInvisibleUpdated()) {
+                    Calendar calender = Calendar.getInstance();
+                    calender.setTime(new Date());
+                    calender.add(Calendar.DATE, DAYS_7);
+                    BraveRewardsHelper.setRewardsOnboardingIconInvisibleTiming(
+                            calender.getTimeInMillis());
+                    BraveRewardsHelper.setRewardsOnboardingIconInvisible(true);
+                }
             }
         }
-    }
-
-    private void updateNotificationBadgeForNewInstall() {
-        SharedPreferences sharedPref = ContextUtils.getAppSharedPreferences();
-        boolean shownBefore = sharedPref.getBoolean(
-                BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, false);
-        boolean shouldShow = mBraveRewardsNotificationsCount != null && !shownBefore;
-        mIsInitialNotificationPosted = shouldShow; // initial notification
-
-        if (!shouldShow) return;
-
-        mBraveRewardsNotificationsCount.setText("");
-        mBraveRewardsNotificationsCount.setBackground(ResourcesCompat.getDrawable(
-                getContext().getResources(), R.drawable.brave_rewards_circle, /* theme= */ null));
-        mBraveRewardsNotificationsCount.setVisibility(View.VISIBLE);
     }
 
     @Override

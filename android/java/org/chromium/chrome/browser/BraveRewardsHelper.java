@@ -65,6 +65,10 @@ public class BraveRewardsHelper implements LargeIconBridge.LargeIconCallback {
     private static final String PREF_REWARDS_ONBOARDING_MODAL = "rewards_onboarding_modal";
     private static final String PREF_REWARDS_ONBOARDING_ICON_TIMING =
             "rewards_onboarding_icon_timing";
+    private static final String PREF_REWARDS_ONBOARDING_ICON_INVISIBLE_TIMING =
+            "rewards_onboarding_icon_invisible_timing";
+    private static final String PREF_REWARDS_ONBOARDING_ICON_INVISIBLE =
+            "rewards_onboarding_icon_invisible";
     private static final int FAVICON_CIRCLE_MEASUREMENTS = 70; // dp
     private static final int FAVICON_TEXT_SIZE = 50; // dp
     private static final int FAVICON_FETCH_INTERVAL = 1000; // In milliseconds
@@ -105,6 +109,9 @@ public class BraveRewardsHelper implements LargeIconBridge.LargeIconCallback {
         sharedPreferencesEditor.putBoolean(PREF_SHOW_BRAVE_REWARDS_ONBOARDING_MODAL, true);
         sharedPreferencesEditor.putBoolean(PREF_SHOW_BRAVE_REWARDS_ONBOARDING_ONCE, false);
         sharedPreferencesEditor.putBoolean(PREF_SHOW_DECLARE_GEO_MODAL, false);
+        sharedPreferencesEditor.putLong(PREF_REWARDS_ONBOARDING_ICON_TIMING, 0);
+        sharedPreferencesEditor.putLong(PREF_REWARDS_ONBOARDING_ICON_INVISIBLE_TIMING, 0);
+        sharedPreferencesEditor.putBoolean(PREF_REWARDS_ONBOARDING_ICON_INVISIBLE, false);
         sharedPreferencesEditor.apply();
     }
 
@@ -138,6 +145,28 @@ public class BraveRewardsHelper implements LargeIconBridge.LargeIconCallback {
     public static void setRewardsOnboardingIconTiming(long nextDate) {
         ChromeSharedPreferences.getInstance().writeLong(
                 PREF_REWARDS_ONBOARDING_ICON_TIMING, nextDate);
+    }
+
+    public static long getRewardsOnboardingIconInvisibleTiming() {
+        return ChromeSharedPreferences.getInstance().readLong(
+                PREF_REWARDS_ONBOARDING_ICON_INVISIBLE_TIMING);
+    }
+
+    public static void setRewardsOnboardingIconInvisibleTiming(long nextDate) {
+        ChromeSharedPreferences.getInstance().writeLong(
+                PREF_REWARDS_ONBOARDING_ICON_INVISIBLE_TIMING, nextDate);
+    }
+
+    public static void setRewardsOnboardingIconInvisible(boolean hasUpdated) {
+        SharedPreferences.Editor sharedPreferencesEditor =
+                ContextUtils.getAppSharedPreferences().edit();
+        sharedPreferencesEditor.putBoolean(PREF_REWARDS_ONBOARDING_ICON_INVISIBLE, hasUpdated);
+        sharedPreferencesEditor.apply();
+    }
+
+    public static boolean hasRewardsOnboardingIconInvisibleUpdated() {
+        return ContextUtils.getAppSharedPreferences().getBoolean(
+                PREF_REWARDS_ONBOARDING_ICON_INVISIBLE, false);
     }
 
     public static void setRewardsOnboardingModalShown(boolean isShown) {
