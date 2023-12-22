@@ -158,7 +158,7 @@ export const TransactionDetailBox = ({
           )}
         </>
       )}
-      
+
       {solData || dataArray ? (
         <DetailColumn>
           <TransactionText>
