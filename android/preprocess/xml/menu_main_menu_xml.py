@@ -90,7 +90,8 @@ def _ProcessXML(root):
       'android:title="@null"> '\
             '<menu> '\
                 '<item android:id="@+id/request_vpn_location_id" '\
-                  'android:title="@string/change_location" /> '\
+                  'android:title="@string/change_location" '\
+                  'android:icon="@null" /> '\
                 '<item android:id="@+id/request_vpn_location_icon_id" '\
                   'android:title="@null" '\
                   'android:icon="@drawable/ic_chevron_right" /> '\

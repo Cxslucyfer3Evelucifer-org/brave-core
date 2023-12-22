@@ -107,10 +107,9 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
 
             if (BraveVpnPrefUtils.isSubscriptionPurchase()) {
                 String serverLocation =
-                        " "
-                                + BraveVpnUtils.countryCodeToEmoji("CA")
-                                + "   "
-                                + BraveVpnPrefUtils.getServerRegion();
+                        BraveVpnUtils.countryCodeToEmoji(BraveVpnPrefUtils.getServerIsoCode())
+                                + " "
+                                + BraveVpnPrefUtils.getServerNamePretty();
 
                 SubMenu vpnLocationSubMenu =
                         menu.findItem(R.id.request_vpn_location_row_menu_id).getSubMenu();
@@ -120,7 +119,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             }
         } else {
             menu.findItem(R.id.request_brave_vpn_row_menu_id).setVisible(false);
-            menu.findItem(R.id.request_vpn_location_id).setVisible(false);
+            menu.findItem(R.id.request_vpn_location_row_menu_id).setVisible(false);
         }
 
         // Brave's items are only visible for page menu.

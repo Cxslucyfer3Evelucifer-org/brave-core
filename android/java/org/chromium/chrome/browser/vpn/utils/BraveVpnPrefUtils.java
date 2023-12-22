@@ -31,6 +31,9 @@ public class BraveVpnPrefUtils {
     private static final String PREF_BRAVE_VPN_PURCHASE_EXPIRY = "brave_vpn_purchase_expiry";
     private static final String PREF_BRAVE_VPN_SERVER_REGIONS = "brave_vpn_server_regions";
     private static final String PREF_BRAVE_VPN_SERVER_CHANGE_LOCATION = "server_change_location";
+    private static final String PREF_BRAVE_VPN_SERVER_ISO_CODE = "server_iso_code";
+    private static final String PREF_BRAVE_VPN_SERVER_NAME_PRETTY = "server_name_pretty";
+
     private static final String PREF_BRAVE_VPN_RESET_CONFIGURATION =
             "brave_vpn_reset_configuration";
     private static final String PREF_EXCLUDED_PACKAGES = "excluded_packages";
@@ -186,9 +189,29 @@ public class BraveVpnPrefUtils {
                 PREF_BRAVE_VPN_SERVER_CHANGE_LOCATION, PREF_BRAVE_VPN_AUTOMATIC);
     }
 
-    public static void setServerRegion(String newValue) {
+    private static void setServerRegion(String newValue) {
         SharedPreferences.Editor sharedPreferencesEditor = sSharedPreferences.edit();
         sharedPreferencesEditor.putString(PREF_BRAVE_VPN_SERVER_CHANGE_LOCATION, newValue);
+        sharedPreferencesEditor.apply();
+    }
+
+    public static String getServerIsoCode() {
+        return sSharedPreferences.getString(PREF_BRAVE_VPN_SERVER_ISO_CODE, "");
+    }
+
+    private static void setServerIsoCode(String newValue) {
+        SharedPreferences.Editor sharedPreferencesEditor = sSharedPreferences.edit();
+        sharedPreferencesEditor.putString(PREF_BRAVE_VPN_SERVER_ISO_CODE, newValue);
+        sharedPreferencesEditor.apply();
+    }
+
+    public static String getServerNamePretty() {
+        return sSharedPreferences.getString(PREF_BRAVE_VPN_SERVER_NAME_PRETTY, "");
+    }
+
+    private static void setServerNamePretty(String newValue) {
+        SharedPreferences.Editor sharedPreferencesEditor = sSharedPreferences.edit();
+        sharedPreferencesEditor.putString(PREF_BRAVE_VPN_SERVER_NAME_PRETTY, newValue);
         sharedPreferencesEditor.apply();
     }
 
@@ -255,7 +278,9 @@ public class BraveVpnPrefUtils {
     public static void setPrefModel(BraveVpnPrefModel braveVpnPrefModel) {
         setHostname(braveVpnPrefModel.getHostname());
         setHostnameDisplay(braveVpnPrefModel.getHostnameDisplay());
-        setServerRegion(braveVpnPrefModel.getServerRegion());
+        setServerRegion(braveVpnPrefModel.getServerRegion().getName());
+        setServerIsoCode(braveVpnPrefModel.getServerRegion().getCountryIsoCode());
+        setServerNamePretty(braveVpnPrefModel.getServerRegion().getNamePretty());
         setPurchaseToken(braveVpnPrefModel.getPurchaseToken());
         setProductId(braveVpnPrefModel.getProductId());
         setSubscriberCredential(braveVpnPrefModel.getSubscriberCredential());

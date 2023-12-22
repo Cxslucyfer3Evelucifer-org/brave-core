@@ -78,7 +78,8 @@ public class VpnServerSelectionActivity extends BraveVpnParentActivity {
                     @Override
                     public void onClick(View v) {
                         BraveVpnUtils.selectedServerRegion =
-                                BraveVpnPrefUtils.PREF_BRAVE_VPN_AUTOMATIC;
+                                new BraveVpnServerRegion(
+                                        "", "", BraveVpnPrefUtils.PREF_BRAVE_VPN_AUTOMATIC, "");
                         // BraveVpnUtils.mIsServerLocationChanged = true;
                         onBackPressed();
                     }
@@ -195,7 +196,7 @@ public class VpnServerSelectionActivity extends BraveVpnParentActivity {
                                         Toast.LENGTH_SHORT)
                                 .show();
                     } else {
-                        BraveVpnUtils.selectedServerRegion = braveVpnServerRegion.getName();
+                        BraveVpnUtils.selectedServerRegion = braveVpnServerRegion;
                         // BraveVpnUtils.mIsServerLocationChanged = true;
                         // onBackPressed();
                         BraveVpnUtils.showProgressDialog(
