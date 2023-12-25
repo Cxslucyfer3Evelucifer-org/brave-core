@@ -6,17 +6,90 @@
 #include "brave/components/brave_wallet/common/zcash_utils.h"
 
 #include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "base/big_endian.h"
+#include "base/types/expected.h"
 #include "brave/components/brave_wallet/common/btc_like_serializer_stream.h"
 #include "brave/components/brave_wallet/common/encoding_utils.h"
+#include "brave/components/brave_wallet/common/f4_jumble.h"
 #include "brave/components/brave_wallet/common/hash_utils.h"
 #include "brave/third_party/bitcoin-core/src/src/base58.h"
+#include "brave/third_party/bitcoin-core/src/src/bech32.h"
+#include "brave/third_party/bitcoin-core/src/src/util/strencodings.h"
+#include "components/base32/base32.h"
 
 namespace brave_wallet {
 
 namespace {
 constexpr size_t kPubKeyHashSize = 20;
 constexpr size_t kPrefixSize = 2;
+
+enum AddrType {
+  P2PKH = 0x00,
+  P2PSH = 0x01,
+  Sapling = 0x02,
+  Orchard = 0x03,
+  End = 0x04
+};
+
+using ParsedAddress = std::pair<AddrType, std::vector<uint8_t>>;
+
+std::optional<uint64_t> ReadCompactSize(base::span<const uint8_t>& data) {
+  uint64_t value;
+  if (data.size() == 0) {
+    return std::nullopt;
+  }
+  uint8_t type = data[0];
+  if (data.size() > 0 && data[0] < 253) {
+    value = type;
+    data = data.subspan(1);
+  } else if (type == 253 && data.size() >= 3) {
+    uint16_t val = 0;
+    base::ReadBigEndian(&data[1], &val);
+    value = val;
+    data = data.subspan(1 + 2);
+  } else if (type <= 254 && data.size() >= 5) {
+    uint32_t val = 0;
+    base::ReadBigEndian(&data[1], &val);
+    value = val;
+    data = data.subspan(1 + 4);
+  } else if (data.size() >= 9) {
+    uint64_t val = 0;
+    base::ReadBigEndian(&data[1], &val);
+    value = val;
+    data = data.subspan(1 + 8);
+  } else {
+    return std::nullopt;
+  }
+  return value;
+}
+
+base::expected<std::vector<ParsedAddress>, std::string> ParseUnifiedAddress(
+    const base::span<uint8_t>& dejumbled_data) {
+  base::span<const uint8_t> data_span(dejumbled_data);
+
+  std::vector<ParsedAddress> result;
+  while (!data_span.empty()) {
+    auto type = ReadCompactSize(data_span);
+    if (!type || *type >= AddrType::End) {
+      return base::unexpected("Wrong type");
+    }
+    auto size = ReadCompactSize(data_span);
+    if (!size || size == 0 || size > data_span.size()) {
+      return base::unexpected("Wrong size");
+    }
+    ParsedAddress addr;
+    addr.first = static_cast<AddrType>(*type);
+    addr.second = std::vector(data_span.begin(), data_span.begin() + *size);
+    result.push_back(std::move(addr));
+    data_span = data_span.subspan(*size);
+  }
+  return result;
+}
+
 }  // namespace
 
 DecodedZCashAddress::DecodedZCashAddress() = default;
@@ -28,6 +101,10 @@ DecodedZCashAddress& DecodedZCashAddress::operator=(
 DecodedZCashAddress::DecodedZCashAddress(DecodedZCashAddress&& other) = default;
 DecodedZCashAddress& DecodedZCashAddress::operator=(
     DecodedZCashAddress&& other) = default;
+
+bool IsUnifiedAddress(const std::string& address) {
+  return address.starts_with("u");
+}
 
 bool IsValidZCashAddress(const std::string& address) {
   return true;
@@ -91,6 +168,50 @@ std::vector<uint8_t> ZCashAddressToScriptPubkey(const std::string& address,
   stream.Push8AsLE(0xac);                          // OP_CHECKSIG
 
   return data;
+}
+
+std::optional<std::string> ExtractTransparentPart(
+    const std::string& unified_address,
+    bool is_testnet) {
+  auto bech_result = bech32::DecodeUnlimited(unified_address);
+
+  if (bech_result.encoding != bech32::Encoding::BECH32M) {
+    return absl::nullopt;
+  }
+
+  std::string expected_hrp = is_testnet ? "utest" : "u";
+  if (bech_result.hrp != expected_hrp) {
+    return absl::nullopt;
+  }
+
+  std::vector<uint8_t> data;
+  if (!ConvertBits<5, 8, false>([&](unsigned char c) { data.push_back(c); },
+                                bech_result.data.begin(),
+                                bech_result.data.end())) {
+    return std::nullopt;
+  }
+
+  auto reverted = RevertF4Jumble(data);
+  {
+    std::vector<uint8_t> input = {};
+
+    std::vector<uint8_t> expected = {};
+
+    EXPECT_EQ(expected, ApplyF4Jumble(input));
+  }
+  auto parts = ParseUnifiedAddress(
+      base::make_span(reverted).subspan(0, reverted.size() - 16));
+  if (!parts.has_value()) {
+    return absl::nullopt;
+  }
+
+  for (const auto& part : parts.value()) {
+    if (part.first == AddrType::P2PKH) {
+      return PubkeyToTransparentAddress(part.second, false);
+    }
+  }
+
+  return absl::nullopt;
 }
 
 }  // namespace brave_wallet
